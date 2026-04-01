@@ -982,6 +982,8 @@ async function pollLog() {
   try {
     const r = await fetch(`/api/log?since=${logOffset}`);
     const data = await r.json();
+    // Server log was reset (e.g. auto-restart between rounds) — reset our offset
+    if (data.total < logOffset) { logOffset = 0; return; }
     if (data.lines.length > 0) {
       const viewer = document.getElementById('log-viewer');
       const atBottom = viewer.scrollHeight - viewer.scrollTop - viewer.clientHeight < 50;
