@@ -888,7 +888,7 @@ async function pollStatus() {
       statsBar.style.display = 'flex';
       document.getElementById('stat-pid').textContent = data.pid;
       pollStats(data.pid);
-      if (!logInterval) startLogPolling();
+      if (!logInterval) startLogPolling(true);
     } else {
       badge.className = 'status-badge stopped';
       text.textContent = t('server.stopped');
@@ -977,7 +977,14 @@ function updateMapPreview() {
 }
 
 // ===== LOG =====
-function startLogPolling() { if (logInterval) clearInterval(logInterval); logInterval = setInterval(pollLog, 1000); }
+async function startLogPolling(skipToEnd = false) {
+  if (logInterval) clearInterval(logInterval);
+  if (skipToEnd) {
+    // Page loaded with server already running — skip existing log to avoid re-parsing old kills
+    try { const r = await fetch('/api/log?since=0'); const d = await r.json(); logOffset = d.total; } catch {}
+  }
+  logInterval = setInterval(pollLog, 1000);
+}
 async function pollLog() {
   try {
     const r = await fetch(`/api/log?since=${logOffset}`);
