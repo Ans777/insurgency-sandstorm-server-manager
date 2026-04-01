@@ -233,6 +233,29 @@
     .news-item-meta { font-size: 10px; color: var(--text-dim); margin-bottom: 6px; }
     .news-item-meta span { color: var(--accent); }
     .news-item-body { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+    /* Community tab */
+    .github-card { background: linear-gradient(135deg, #1a1d27 0%, #1e2235 100%); border: 1px solid rgba(200,145,94,0.35); border-radius: 10px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 0; }
+    .github-card-left { display: flex; align-items: center; gap: 14px; }
+    .github-logo { width: 40px; height: 40px; opacity: 0.9; flex-shrink: 0; }
+    .github-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .github-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+    .github-card-right { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-github { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; border: none; transition: all 0.15s; }
+    .btn-github-star { background: rgba(200,145,94,0.15); border: 1px solid rgba(200,145,94,0.4); color: var(--accent); }
+    .btn-github-star:hover { background: rgba(200,145,94,0.25); }
+    .btn-github-view { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+    .btn-github-view:hover { background: var(--border); }
+    .community-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 800px) { .community-grid { grid-template-columns: 1fr; } }
+    .community-feed { display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto; }
+    .community-post { padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: border-color 0.15s; text-decoration: none; display: block; }
+    .community-post:hover { border-color: var(--accent); }
+    .community-post-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+    .community-post-meta { font-size: 10px; color: var(--text-dim); display: flex; gap: 8px; flex-wrap: wrap; }
+    .community-post-meta .score { color: var(--accent); font-weight: 600; }
+    .community-post-meta .flair { background: var(--surface2); border-radius: 3px; padding: 1px 5px; }
+    .community-post-body { font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-top: 5px; }
     .news-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; text-transform: uppercase; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(200,145,94,0.3); margin-left: 6px; }
 
     /* Heatmap */
@@ -333,10 +356,11 @@
 </header>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('server')">Server</button>
-  <button class="tab-btn" onclick="switchTab('player')">Spiller</button>
-  <button class="tab-btn" onclick="switchTab('global')">Global Stats</button>
-  <button class="tab-btn" onclick="switchTab('news')">Nyheder</button>
+  <button class="tab-btn active" onclick="switchTab('server')" data-i18n="tabs.server">Server</button>
+  <button class="tab-btn" onclick="switchTab('player')" data-i18n="tabs.player">Spiller</button>
+  <button class="tab-btn" onclick="switchTab('global')" data-i18n="tabs.global">Global Stats</button>
+  <button class="tab-btn" onclick="switchTab('news')" data-i18n="tabs.news">Nyheder</button>
+  <button class="tab-btn" onclick="switchTab('community')" data-i18n="tabs.community">Community</button>
 </div>
 
 <div id="tab-player" class="tab-content">
@@ -358,28 +382,28 @@
         </div>
       </div>
       <div class="rank-stats-row" style="margin-bottom: 14px;">
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-kills">0</div><div class="rank-stat-label">Kills</div></div>
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-deaths">0</div><div class="rank-stat-label">Deaths</div></div>
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-kd">0</div><div class="rank-stat-label">K/D Ratio</div></div>
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-best-streak">0</div><div class="rank-stat-label">Bedste Streak</div></div>
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-best-game">0</div><div class="rank-stat-label">Bedste Session</div></div>
-        <div class="rank-stat"><div class="rank-stat-val" id="gf-sessions">0</div><div class="rank-stat-label">Sessions</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-kills">0</div><div class="rank-stat-label" data-i18n="career.kills">Kills</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-deaths">0</div><div class="rank-stat-label" data-i18n="career.deaths">Deaths</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-kd">0</div><div class="rank-stat-label" data-i18n="career.kdRatio">K/D Ratio</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-best-streak">0</div><div class="rank-stat-label" data-i18n="career.bestStreak">Bedste Streak</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-best-game">0</div><div class="rank-stat-label" data-i18n="career.bestSession">Bedste Session</div></div>
+        <div class="rank-stat"><div class="rank-stat-val" id="gf-sessions">0</div><div class="rank-stat-label" data-i18n="career.sessions">Sessions</div></div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Kills pr. Map</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="career.killsPerMap">Kills pr. Map</h2>
           <div id="gf-map-bars"></div>
         </div>
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Kills pr. V&#229;ben</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="career.killsPerWeapon">Kills pr. Våben</h2>
           <div id="gf-weapon-bars"></div>
         </div>
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Kills pr. Rolle</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="career.killsPerRole">Kills pr. Rolle</h2>
           <div id="gf-role-bars"></div>
         </div>
       </div>
-      <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px;">Medaljer</h2>
+      <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px;" data-i18n="career.medals">Medaljer</h2>
       <div class="medal-grid" id="gf-medals"></div>
     </div>
   </div>
@@ -387,28 +411,28 @@
   <!-- Dashboard -->
   <div class="panel full-width" id="p-dashboard">
     <div class="panel-header" onclick="togglePanel(event,'p-dashboard')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Dashboard</h2></div>
-      <button class="btn btn-sm btn-save export-btn" onclick="event.stopPropagation();exportStats()">Eksport&#233;r Stats</button>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="dashboard.title">Dashboard</h2></div>
+      <button class="btn btn-sm btn-save export-btn" onclick="event.stopPropagation();exportStats()" data-i18n="dashboard.exportStats">Eksportér Stats</button>
     </div>
     <div class="panel-body">
       <!-- Daily Challenge -->
       <div class="daily-card" id="daily-challenge">
-        <h3>&#9733; Daglig Udfordring</h3>
-        <div class="daily-desc" id="daily-desc">Indl&#230;ser...</div>
+        <h3>&#9733; <span data-i18n="dashboard.dailyChallenge">Daglig Udfordring</span></h3>
+        <div class="daily-desc" id="daily-desc" data-i18n="dashboard.loading">Indlæser...</div>
         <div class="daily-progress">
           <div class="challenge-progress-track"><div class="challenge-progress-fill" id="daily-progress-bar" style="width:0%"></div></div>
           <div class="challenge-nums" id="daily-nums"></div>
         </div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-        <!-- Session formkurve -->
+        <!-- Session graph -->
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Session Formkurve (sidste 10)</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="dashboard.sessionGraph">Session Formkurve (sidste 10)</h2>
           <canvas class="graph-canvas" id="session-graph"></canvas>
         </div>
         <!-- Heatmap -->
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Aktivitet pr. Tidspunkt</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="dashboard.activityHeatmap">Aktivitet pr. Tidspunkt</h2>
           <div class="heatmap-labels"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div>
           <div class="heatmap" id="heatmap"></div>
         </div>
@@ -416,12 +440,12 @@
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
         <!-- K/D per map -->
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">K/D pr. Map</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="dashboard.kdPerMap">K/D pr. Map</h2>
           <div id="kd-map-bars"></div>
         </div>
         <!-- K/D per weapon -->
         <div>
-          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">K/D pr. V&#229;ben (top 10)</h2>
+          <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="dashboard.kdPerWeapon">K/D pr. Våben (top 10)</h2>
           <div id="kd-weapon-bars"></div>
         </div>
       </div>
@@ -431,15 +455,15 @@
   <!-- Challenges -->
   <div class="panel full-width" id="p-challenges">
     <div class="panel-header" onclick="togglePanel(event,'p-challenges')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Udfordringer</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="challenges.title">Udfordringer</h2></div>
       <span id="challenge-count" style="font-size:12px;color:var(--text-dim)"></span>
     </div>
     <div class="panel-body">
-      <h3 style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Aktive</h3>
-      <div class="challenge-active" id="challenge-active"><div style="font-size:12px;color:var(--text-dim)">Ingen aktive udfordringer. Vælg en nedenfor.</div></div>
-      <h3 style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 8px;">Vælg Udfordring</h3>
+      <h3 style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;" data-i18n="challenges.active">Aktive</h3>
+      <div class="challenge-active" id="challenge-active"><div style="font-size:12px;color:var(--text-dim)" data-i18n="challenges.none">Ingen aktive udfordringer. Vælg en nedenfor.</div></div>
+      <h3 style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 8px;" data-i18n="challenges.pick">Vælg Udfordring</h3>
       <div class="challenge-picker" id="challenge-picker"></div>
-      <h3 style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 8px;">Gennemførte</h3>
+      <h3 style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 8px;" data-i18n="challenges.completed">Gennemførte</h3>
       <div class="challenge-completed-list" id="challenge-completed"></div>
     </div>
   </div>
@@ -449,14 +473,14 @@
   <!-- Kill Feed -->
   <div class="panel full-width" id="p-killfeed">
     <div class="panel-header" onclick="togglePanel(event,'p-killfeed')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Kill Feed</h2></div>
-      <button class="btn btn-sm" onclick="event.stopPropagation();clearKillFeed()">Ryd</button>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="killfeed.title">Kill Feed</h2></div>
+      <button class="btn btn-sm" onclick="event.stopPropagation();clearKillFeed()" data-i18n="killfeed.clear">Ryd</button>
     </div>
     <div class="panel-body">
       <div class="killfeed-stats">
-        <div class="kfs">Dine kills: <span class="kfs-val" id="kf-kills" style="color:var(--accent)">0</span></div>
-        <div class="kfs">Dine deaths: <span class="kfs-val" id="kf-deaths" style="color:var(--red)">0</span></div>
-        <div class="kfs">Bot kills: <span class="kfs-val" id="kf-team" style="color:var(--blue)">0</span></div>
+        <div class="kfs"><span data-i18n="killfeed.yourKills">Dine kills</span>: <span class="kfs-val" id="kf-kills" style="color:var(--accent)">0</span></div>
+        <div class="kfs"><span data-i18n="killfeed.yourDeaths">Dine deaths</span>: <span class="kfs-val" id="kf-deaths" style="color:var(--red)">0</span></div>
+        <div class="kfs"><span data-i18n="killfeed.botKills">Bot kills</span>: <span class="kfs-val" id="kf-team" style="color:var(--blue)">0</span></div>
       </div>
       <div class="killfeed" id="killfeed"></div>
     </div>
@@ -465,15 +489,15 @@
   <!-- Achievements -->
   <div class="panel full-width" id="p-achievements">
     <div class="panel-header" onclick="togglePanel(event,'p-achievements')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Achievements</h2></div>
-      <div class="ach-header-stats" id="ach-stats">Indlæser...</div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="achievements.title">Achievements</h2></div>
+      <div class="ach-header-stats" id="ach-stats" data-i18n="dashboard.loading">Indlæser...</div>
     </div>
     <div class="panel-body">
       <div class="ach-progress"><div class="ach-progress-bar" id="ach-progress-bar" style="width:0%"></div></div>
       <div class="ach-filter-row">
-        <button class="log-filter-btn active" onclick="filterAch('all',this)">Alle</button>
-        <button class="log-filter-btn" onclick="filterAch('unlocked',this)">Opn&#229;et</button>
-        <button class="log-filter-btn" onclick="filterAch('locked',this)">Mangler</button>
+        <button class="log-filter-btn active" onclick="filterAch('all',this)" data-i18n="achievements.all">Alle</button>
+        <button class="log-filter-btn" onclick="filterAch('unlocked',this)" data-i18n="achievements.achieved">Opnået</button>
+        <button class="log-filter-btn" onclick="filterAch('locked',this)" data-i18n="achievements.missing">Mangler</button>
       </div>
       <div class="ach-grid" id="ach-grid"></div>
     </div>
@@ -488,33 +512,33 @@
   <!-- Server Control -->
   <div class="panel" id="p-server">
     <div class="panel-header" onclick="togglePanel(event,'p-server')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Server Kontrol</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="server.control">Server Kontrol</h2></div>
       <div class="btn-group">
-        <button class="btn btn-play" onclick="event.stopPropagation();startAndPlay()">Dedicated + Connect</button>
-        <button class="btn btn-play" onclick="event.stopPropagation();launchLocalPlay()" style="background:var(--green-dim);border-color:rgba(74,222,128,0.3);color:var(--green);">Local Play (med bots!)</button>
+        <button class="btn btn-play" onclick="event.stopPropagation();startAndPlay()" data-i18n="server.dedicatedConnect">Dedicated + Connect</button>
+        <button class="btn btn-play" onclick="event.stopPropagation();launchLocalPlay()" style="background:var(--green-dim);border-color:rgba(74,222,128,0.3);color:var(--green);" data-i18n="server.localPlay">Local Play (med bots!)</button>
       </div>
     </div>
     <div class="panel-body">
       <!-- Presets -->
       <div class="preset-row">
-        <select id="preset-select"><option value="">-- Vælg Preset --</option></select>
-        <button class="btn btn-sm" onclick="loadPreset()">Indlæs</button>
-        <button class="btn btn-sm btn-save" onclick="savePreset()">Gem Ny</button>
-        <button class="btn btn-sm btn-stop" onclick="deletePreset()">Slet</button>
+        <select id="preset-select"><option value="" data-i18n="presets.select">-- Vælg Preset --</option></select>
+        <button class="btn btn-sm" onclick="loadPreset()" data-i18n="presets.load">Indlæs</button>
+        <button class="btn btn-sm btn-save" onclick="savePreset()" data-i18n="presets.saveNew">Gem Ny</button>
+        <button class="btn btn-sm btn-stop" onclick="deletePreset()" data-i18n="presets.delete">Slet</button>
       </div>
       <!-- Map preview -->
-      <div class="map-preview" id="map-preview"><span class="placeholder">Vælg et map</span></div>
+      <div class="map-preview" id="map-preview"><span class="placeholder" data-i18n="server.mapPlaceholder">Vælg et map</span></div>
       <div class="btn-group" style="margin-bottom: 14px;">
-        <button class="btn btn-start" onclick="startServer()">Start Server</button>
-        <button class="btn btn-stop" onclick="stopServer()">Stop Server</button>
+        <button class="btn btn-start" onclick="startServer()" data-i18n="server.start">Start Server</button>
+        <button class="btn btn-stop" onclick="stopServer()" data-i18n="server.stop">Stop Server</button>
         <div class="checkbox-row" style="margin-left: 8px;">
           <input type="checkbox" id="auto-restart" onchange="toggleAutoRestart()">
-          <label for="auto-restart" style="font-size:12px">Auto-restart</label>
+          <label for="auto-restart" style="font-size:12px" data-i18n="server.autoRestart">Auto-restart</label>
         </div>
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label>Start Map</label>
+          <label data-i18n="server.startMap">Start Map</label>
           <select id="start-map" onchange="updateMapPreview()">
             <option value="Farmhouse">Farmhouse</option><option value="Hideout">Hideout</option>
             <option value="Refinery">Refinery</option><option value="Precinct">Precinct</option>
@@ -527,7 +551,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Game Mode</label>
+          <label data-i18n="server.gameMode">Game Mode</label>
           <select id="game-mode">
             <option value="Checkpoint">Checkpoint</option><option value="Hardcore_Checkpoint">Hardcore Checkpoint</option>
             <option value="Push">Push</option><option value="Frontline">Frontline</option>
@@ -536,20 +560,20 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Side</label>
+          <label data-i18n="server.side">Side</label>
           <select id="side"><option value="Security">Security</option><option value="Insurgents">Insurgents</option></select>
         </div>
         <div class="form-group">
-          <label>Max Spillere</label>
+          <label data-i18n="server.maxPlayers">Max Spillere</label>
           <input type="number" id="max-players" value="8" min="1" max="32">
         </div>
         <div class="form-group">
-          <label>Port</label>
+          <label data-i18n="server.port">Port</label>
           <input type="number" id="port" value="27102" min="1024" max="65535">
         </div>
         <div class="form-group" style="justify-content:flex-end;">
-          <div class="checkbox-row"><input type="checkbox" id="no-steam"><label for="no-steam">No Steam (LAN)</label></div>
-          <div class="checkbox-row" style="margin-top:4px"><input type="checkbox" id="use-mapcycle" checked><label for="use-mapcycle">Brug MapCycle</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="no-steam"><label for="no-steam" data-i18n="server.noSteam">No Steam (LAN)</label></div>
+          <div class="checkbox-row" style="margin-top:4px"><input type="checkbox" id="use-mapcycle" checked><label for="use-mapcycle" data-i18n="server.useMapcycle">Brug MapCycle</label></div>
         </div>
       </div>
     </div>
@@ -558,24 +582,24 @@
   <!-- Quick Settings + Mutators -->
   <div class="panel" id="p-settings">
     <div class="panel-header" onclick="togglePanel(event,'p-settings')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Indstillinger & Mutators</h2></div>
-      <button class="btn btn-save" onclick="saveQuickSettings()">Gem Indstillinger</button>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="settings.title">Indstillinger & Mutators</h2></div>
+      <button class="btn btn-save" onclick="saveQuickSettings()" data-i18n="settings.save">Gem Indstillinger</button>
     </div>
     <div class="panel-body">
       <div class="quick-settings">
-        <div class="quick-setting" title="Hvor svær fjendtlig AI er. 0.0 = let, 0.5 = normal, 1.0 = hardcore. Påvirker nøjagtighed, reaktionstid og taktik."><label>AI Sværhedsgrad</label><input type="number" id="qs-difficulty" step="0.1" min="0" max="1" value="0.7"></div>
-        <div class="quick-setting" title="Antal venlige bots på dit hold. Flere bots = mere hjælp, men også mere kaos. Max afhænger af MaxPlayers."><label>Friendly Bots</label><input type="number" id="qs-friendly-bots" min="0" max="16" value="7"></div>
-        <div class="quick-setting" title="Minimum antal fjendtlige bots der altid er aktive. Bruges når bBots er slået fra - ellers styrer SoloEnemies."><label>Min. Enemies</label><input type="number" id="qs-min-enemies" min="1" max="80" value="28"></div>
-        <div class="quick-setting" title="Maximum antal fjendtlige bots. Fjender skalerer op mellem min og max baseret på antal spillere."><label>Max. Enemies</label><input type="number" id="qs-max-enemies" min="1" max="80" value="45"></div>
-        <div class="quick-setting" title="Fast antal fjender når bBots=True (friendly bots aktive). Erstatter Min/Max Enemies. Skalerer IKKE med spillerantal."><label>Solo Enemies</label><input type="number" id="qs-solo-enemies" min="1" max="80" value="45"></div>
-        <div class="quick-setting" title="Antal waves af fjender der spawner pr. objective. Flere waves = længere kamp ved hvert punkt."><label>Solo Waves</label><input type="number" id="qs-solo-waves" min="1" max="30" value="10"></div>
-        <div class="quick-setting" title="Antal supply points du starter med til at vælge våben og udstyr. Højere = bedre loadouts fra start."><label>Initial Supply</label><input type="number" id="qs-supply" min="0" max="100" value="45"></div>
-        <div class="quick-setting" title="Tidsbegrænsning pr. runde i sekunder. 1200 = 20 minutter. Når tiden løber ud, taber dit hold."><label>Round Time (sek)</label><input type="number" id="qs-round-time" min="60" max="3600" value="1200"></div>
-        <div class="quick-setting" title="Antal gange dit hold kan respawne. Når alle waves er brugt og du dør, er spillet slut. +1 bonus pr. objective taget."><label>Respawn Waves</label><input type="number" id="qs-waves" min="0" max="30" value="5"></div>
-        <div class="quick-setting" title="Hvor mange runder der spilles på ét map før serveren skifter til næste i MapCycle."><label>Runder pr. Map</label><input type="number" id="qs-rounds" min="1" max="10" value="3"></div>
-        <div class="quick-setting" title="Antal sekunder du venter inden du respawner efter du er blevet dræbt."><label>Respawn Delay (sek)</label><input type="number" id="qs-respawn-delay" min="0" max="120" value="15"></div>
+        <div class="quick-setting" data-i18n-title="settings.aiDifficultyTip"><label data-i18n="settings.aiDifficulty">AI Sværhedsgrad</label><input type="number" id="qs-difficulty" step="0.1" min="0" max="1" value="0.7"></div>
+        <div class="quick-setting" data-i18n-title="settings.friendlyBotsTip"><label data-i18n="settings.friendlyBots">Friendly Bots</label><input type="number" id="qs-friendly-bots" min="0" max="16" value="7"></div>
+        <div class="quick-setting" data-i18n-title="settings.minEnemiesTip"><label data-i18n="settings.minEnemies">Min. Enemies</label><input type="number" id="qs-min-enemies" min="1" max="80" value="28"></div>
+        <div class="quick-setting" data-i18n-title="settings.maxEnemiesTip"><label data-i18n="settings.maxEnemies">Max. Enemies</label><input type="number" id="qs-max-enemies" min="1" max="80" value="45"></div>
+        <div class="quick-setting" data-i18n-title="settings.soloEnemiesTip"><label data-i18n="settings.soloEnemies">Solo Enemies</label><input type="number" id="qs-solo-enemies" min="1" max="80" value="45"></div>
+        <div class="quick-setting" data-i18n-title="settings.soloWavesTip"><label data-i18n="settings.soloWaves">Solo Waves</label><input type="number" id="qs-solo-waves" min="1" max="30" value="10"></div>
+        <div class="quick-setting" data-i18n-title="settings.initialSupplyTip"><label data-i18n="settings.initialSupply">Initial Supply</label><input type="number" id="qs-supply" min="0" max="100" value="45"></div>
+        <div class="quick-setting" data-i18n-title="settings.roundTimeTip"><label data-i18n="settings.roundTime">Round Time (sek)</label><input type="number" id="qs-round-time" min="60" max="3600" value="1200"></div>
+        <div class="quick-setting" data-i18n-title="settings.respawnWavesTip"><label data-i18n="settings.respawnWaves">Respawn Waves</label><input type="number" id="qs-waves" min="0" max="30" value="5"></div>
+        <div class="quick-setting" data-i18n-title="settings.roundsPerMapTip"><label data-i18n="settings.roundsPerMap">Runder pr. Map</label><input type="number" id="qs-rounds" min="1" max="10" value="3"></div>
+        <div class="quick-setting" data-i18n-title="settings.respawnDelayTip"><label data-i18n="settings.respawnDelay">Respawn Delay (sek)</label><input type="number" id="qs-respawn-delay" min="0" max="120" value="15"></div>
       </div>
-      <h2 style="font-size:12px; color:var(--text-dim); margin: 14px 0 8px; text-transform:uppercase; letter-spacing:0.6px;">Mutators</h2>
+      <h2 style="font-size:12px; color:var(--text-dim); margin: 14px 0 8px; text-transform:uppercase; letter-spacing:0.6px;" data-i18n="settings.mutators">Mutators</h2>
       <div class="mutator-grid" id="mutator-grid"></div>
     </div>
   </div>
@@ -583,22 +607,22 @@
   <!-- Log Viewer + RCON -->
   <div class="panel full-width" id="p-log">
     <div class="panel-header" onclick="togglePanel(event,'p-log')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Server Log</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="log.title">Server Log</h2></div>
       <div class="btn-group">
-        <button class="log-filter-btn active" data-filter="all" onclick="setLogFilter('all',this)">Alle</button>
-        <button class="log-filter-btn" data-filter="error" onclick="setLogFilter('error',this)">Fejl</button>
-        <button class="log-filter-btn" data-filter="warn" onclick="setLogFilter('warn',this)">Advarsler</button>
-        <button class="btn btn-sm" onclick="clearLog()">Ryd</button>
+        <button class="log-filter-btn active" data-filter="all" onclick="setLogFilter('all',this)" data-i18n="log.all">Alle</button>
+        <button class="log-filter-btn" data-filter="error" onclick="setLogFilter('error',this)" data-i18n="log.errors">Fejl</button>
+        <button class="log-filter-btn" data-filter="warn" onclick="setLogFilter('warn',this)" data-i18n="log.warnings">Advarsler</button>
+        <button class="btn btn-sm" onclick="clearLog()" data-i18n="log.clear">Ryd</button>
       </div>
     </div>
     <div class="panel-body">
       <div class="log-controls">
-        <input type="text" id="log-search" placeholder="Søg i log..." oninput="filterLog()">
+        <input type="text" id="log-search" data-i18n-placeholder="log.search" placeholder="Søg i log..." oninput="filterLog()">
       </div>
-      <div id="log-viewer">Venter på server output...</div>
+      <div id="log-viewer" data-i18n="log.waiting">Venter på server output...</div>
       <div class="rcon-row">
-        <input type="text" id="rcon-input" placeholder="RCON kommando (f.eks. listplayers, travel, kick)..." onkeydown="if(event.key==='Enter')sendRcon()">
-        <button class="btn btn-save" onclick="sendRcon()">Send</button>
+        <input type="text" id="rcon-input" data-i18n-placeholder="log.rconPlaceholder" placeholder="RCON kommando (f.eks. listplayers, travel, kick)..." onkeydown="if(event.key==='Enter')sendRcon()">
+        <button class="btn btn-save" onclick="sendRcon()" data-i18n="log.send">Send</button>
       </div>
     </div>
   </div>
@@ -606,10 +630,10 @@
   <!-- Game.ini + Backup -->
   <div class="panel" id="p-gameini">
     <div class="panel-header" onclick="togglePanel(event,'p-gameini')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Game.ini</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="config.gameIni">Game.ini</h2></div>
       <div class="btn-group">
-        <button class="btn btn-sm" onclick="createBackup()">Backup</button>
-        <button class="btn btn-sm btn-save" onclick="saveGameIni()">Gem</button>
+        <button class="btn btn-sm" onclick="createBackup()" data-i18n="config.backup">Backup</button>
+        <button class="btn btn-sm btn-save" onclick="saveGameIni()" data-i18n="config.save">Gem</button>
       </div>
     </div>
     <div class="panel-body">
@@ -620,13 +644,13 @@
   <!-- MapCycle + Backup/Restore -->
   <div class="panel" id="p-mapcycle">
     <div class="panel-header" onclick="togglePanel(event,'p-mapcycle')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>MapCycle.txt</h2></div>
-      <button class="btn btn-sm btn-save" onclick="saveMapCycle()">Gem</button>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="config.mapcycle">MapCycle.txt</h2></div>
+      <button class="btn btn-sm btn-save" onclick="saveMapCycle()" data-i18n="config.save">Gem</button>
     </div>
     <div class="panel-body">
       <textarea id="map-cycle" spellcheck="false"></textarea>
-      <h2 style="font-size:12px; color:var(--text-dim); margin: 14px 0 6px; text-transform:uppercase; letter-spacing:0.6px;">Backups</h2>
-      <div class="btn-group" style="margin-bottom:6px"><button class="btn btn-sm" onclick="createBackup()">Ny Backup</button><button class="btn btn-sm" onclick="loadBackups()">Opdater</button></div>
+      <h2 style="font-size:12px; color:var(--text-dim); margin: 14px 0 6px; text-transform:uppercase; letter-spacing:0.6px;" data-i18n="config.backups">Backups</h2>
+      <div class="btn-group" style="margin-bottom:6px"><button class="btn btn-sm" onclick="createBackup()" data-i18n="config.newBackup">Ny Backup</button><button class="btn btn-sm" onclick="loadBackups()" data-i18n="config.refresh">Opdater</button></div>
       <div class="backup-list" id="backup-list"></div>
     </div>
   </div>
@@ -634,14 +658,14 @@
   <!-- Mod Manager -->
   <div class="panel full-width" id="p-mods">
     <div class="panel-header" onclick="togglePanel(event,'p-mods')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Mod Manager</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="mods.title">Mod Manager</h2></div>
       <div class="btn-group">
-        <button class="btn btn-sm" onclick="scanMods()">Scan Mods</button>
-        <button class="btn btn-sm btn-save" onclick="saveMods()">Gem Valg</button>
+        <button class="btn btn-sm" onclick="scanMods()" data-i18n="mods.scan">Scan Mods</button>
+        <button class="btn btn-sm btn-save" onclick="saveMods()" data-i18n="mods.save">Gem Valg</button>
       </div>
     </div>
     <div class="panel-body">
-      <p style="font-size:11px; color:var(--text-dim); margin-bottom:8px;">Klik på en mod for at aktivere/deaktivere den. Mods aktiveres ved næste server start.</p>
+      <p style="font-size:11px; color:var(--text-dim); margin-bottom:8px;" data-i18n="mods.hint">Klik på en mod for at aktivere/deaktivere den. Mods aktiveres ved næste server start.</p>
       <div class="mod-grid" id="mod-grid"></div>
     </div>
   </div>
@@ -655,7 +679,7 @@
   <!-- Live Player Count -->
   <div class="panel full-width" id="p-global-live">
     <div class="panel-header">
-      <h2>Insurgency: Sandstorm - Live</h2>
+      <h2 data-i18n="global.live">Insurgency: Sandstorm - Live</h2>
       <div id="global-player-count" style="font-size:14px;color:var(--green);font-weight:600;"></div>
     </div>
     <div class="panel-body">
@@ -666,10 +690,10 @@
   <!-- Global Achievement Comparison -->
   <div class="panel full-width" id="p-global-ach">
     <div class="panel-header" onclick="togglePanel(event,'p-global-ach')">
-      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Achievement Sammenligning - Du vs. Verden</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2 data-i18n="global.comparison">Achievement Sammenligning - Du vs. Verden</h2></div>
     </div>
     <div class="panel-body">
-      <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px;">Hvor mange procent af alle spillere har opn&#229;et hver achievement. Dine er markeret.</p>
+      <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px;" data-i18n="global.comparisonHint">Hvor mange procent af alle spillere har opnået hver achievement. Dine er markeret.</p>
       <div id="global-ach-list" style="display:flex;flex-direction:column;gap:4px;max-height:500px;overflow-y:auto;"></div>
     </div>
   </div>
@@ -681,40 +705,98 @@
 <div class="container">
   <div class="panel full-width" id="p-news">
     <div class="panel-header">
-      <div style="display:flex;align-items:center;gap:8px"><h2>Nyheder fra New World Interactive</h2></div>
+      <div style="display:flex;align-items:center;gap:8px"><h2 data-i18n="news.title">Nyheder fra New World Interactive</h2></div>
     </div>
     <div class="panel-body">
-      <div class="news-list" id="news-list"><div style="font-size:12px;color:var(--text-dim)">Indl&#230;ser nyheder...</div></div>
+      <div class="news-list" id="news-list"><div style="font-size:12px;color:var(--text-dim)" data-i18n="news.loading">Indlæser nyheder...</div></div>
     </div>
   </div>
 </div><!-- end container -->
 </div><!-- end tab-news -->
 
+<div id="tab-community" class="tab-content">
+<div class="container">
+  <!-- GitHub Promo -->
+  <div class="panel full-width">
+    <div class="panel-body" style="padding:16px">
+      <div class="github-card">
+        <div class="github-card-left">
+          <svg class="github-logo" viewBox="0 0 24 24" fill="#e2e4ea"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          <div>
+            <div class="github-card-title" data-i18n="community.githubTitle">Insurgency Sandstorm Server Manager</div>
+            <div class="github-card-desc" data-i18n="community.githubDesc">Open source projekt på GitHub — fri at bruge, dele og bidrage til.<br>Hjælp projektet ved at give det en stjerne!</div>
+          </div>
+        </div>
+        <div class="github-card-right">
+          <a class="btn-github btn-github-star" href="https://github.com/Ans777/insurgency-sandstorm-server-manager" target="_blank" data-i18n="community.githubStar">⭐ Star on GitHub</a>
+          <a class="btn-github btn-github-view" href="https://github.com/Ans777/insurgency-sandstorm-server-manager" target="_blank" data-i18n="community.githubView">View Repository</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community feeds -->
+  <div class="community-grid full-width">
+    <!-- Reddit -->
+    <div class="panel" id="p-reddit">
+      <div class="panel-header" onclick="togglePanel(event,'p-reddit')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="collapse-icon">&#9660;</span>
+          <h2 data-i18n="community.redditTitle">r/insurgency — Reddit</h2>
+        </div>
+        <button class="btn btn-sm" onclick="loadReddit(true)" data-i18n="community.refresh">Opdater</button>
+      </div>
+      <div class="panel-body">
+        <div class="community-feed" id="reddit-feed">
+          <div style="font-size:12px;color:var(--text-dim)" data-i18n="community.loadingReddit">Indlæser Reddit...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steam Discussions -->
+    <div class="panel" id="p-steam-disc">
+      <div class="panel-header" onclick="togglePanel(event,'p-steam-disc')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="collapse-icon">&#9660;</span>
+          <h2 data-i18n="community.steamTitle">Steam Community Diskussioner</h2>
+        </div>
+        <button class="btn btn-sm" onclick="loadSteamDiscussions(true)" data-i18n="community.refresh">Opdater</button>
+      </div>
+      <div class="panel-body">
+        <div class="community-feed" id="steam-disc-feed">
+          <div style="font-size:12px;color:var(--text-dim)" data-i18n="community.loadingSteam">Indlæser Steam diskussioner...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 <!-- Rank-up Overlay -->
 <div class="rankup-overlay" id="rankup-overlay" onclick="this.classList.remove('show')">
   <div class="rankup-content">
     <div class="rankup-icon" id="rankup-icon"></div>
-    <div class="rankup-title">Forfremmet!</div>
+    <div class="rankup-title" data-i18n="rankup.promoted">Forfremmet!</div>
     <div class="rankup-rank" id="rankup-rank"></div>
-    <div class="rankup-sub">Klik for at lukke</div>
+    <div class="rankup-sub" data-i18n="rankup.clickClose">Klik for at lukke</div>
   </div>
 </div>
 
 <!-- AI Toggle -->
-<button class="ai-toggle" onclick="toggleAI()" title="AI Assistent">
+<button class="ai-toggle" onclick="toggleAI()" data-i18n-title="ai.title" title="AI Assistent">
   <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
 </button>
 
 <!-- AI Panel -->
 <div id="ai-panel" class="ai-panel">
   <div class="ai-panel-header">
-    <h3>AI Assistent</h3>
-    <span id="ai-status" class="ai-connection-status">Ikke forbundet</span>
+    <h3 data-i18n="ai.title">AI Assistent</h3>
+    <span id="ai-status" class="ai-connection-status" data-i18n="ai.notConnected">Ikke forbundet</span>
   </div>
   <div id="ai-key-section" class="ai-key-form">
-    <p>Indtast din OpenAI API nøgle for at aktivere AI assistenten.</p>
+    <p data-i18n="ai.keyHint">Indtast din OpenAI API nøgle for at aktivere AI assistenten.</p>
     <input type="password" id="ai-key-input" placeholder="sk-...">
-    <button class="btn btn-save" onclick="saveApiKey()">Gem Nøgle</button>
+    <button class="btn btn-save" onclick="saveApiKey()" data-i18n="ai.saveKey">Gem Nøgle</button>
   </div>
   <div id="ai-chat-section" style="display:none; flex-direction:column;">
     <div id="ai-messages" class="ai-messages">
@@ -725,11 +807,11 @@
         <button id="ai-mic-btn" class="ai-mic-btn" onmousedown="startRecording()" onmouseup="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()">
           <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
         </button>
-        <span class="ai-voice-hint" id="ai-voice-hint">Hold mikrofonen nede for at tale</span>
+        <span class="ai-voice-hint" id="ai-voice-hint" data-i18n="ai.voiceHint">Hold mikrofonen nede for at tale</span>
       </div>
       <div class="ai-text-row">
-        <input type="text" id="ai-text-input" placeholder="Skriv dit spørgsmål..." onkeydown="if(event.key==='Enter')sendText()">
-        <button class="btn btn-save" onclick="sendText()">Send</button>
+        <input type="text" id="ai-text-input" data-i18n-placeholder="ai.textPlaceholder" placeholder="Skriv dit spørgsmål..." onkeydown="if(event.key==='Enter')sendText()">
+        <button class="btn btn-save" onclick="sendText()" data-i18n="log.send">Send</button>
       </div>
     </div>
   </div>
@@ -1197,10 +1279,33 @@ async function loadAppConfig() {
     // Load language
     const lr = await fetch('/api/lang/' + appConfig.language);
     lang = await lr.json();
+    // Apply translations to all data-i18n elements
+    applyLang();
     // Update player name in UI
     const careerTitle = document.querySelector('#p-gamification .panel-header h2');
     if (careerTitle) careerTitle.textContent = (lang['career.title'] || "{playerName}'s Career").replace('{playerName}', appConfig.playerName);
   } catch {}
+}
+
+function applyLang() {
+  // Text content
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = lang[key];
+    if (val) el.textContent = val;
+  });
+  // Placeholder attributes
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const val = lang[key];
+    if (val) el.placeholder = val;
+  });
+  // Title/tooltip attributes
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    const val = lang[key];
+    if (val) el.title = val;
+  });
 }
 
 function t(key, vars) {
@@ -2006,17 +2111,17 @@ function showChat() {
 function connectAI() {
   if (aiWs && aiWs.readyState === WebSocket.OPEN) return;
   const statusEl = document.getElementById('ai-status');
-  statusEl.textContent = 'Forbinder...'; statusEl.className = 'ai-connection-status';
+  statusEl.textContent = t('ai.connecting'); statusEl.className = 'ai-connection-status';
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   aiWs = new WebSocket(`${protocol}//${location.host}/ws/realtime`);
   aiWs.onmessage = (evt) => handleAIMessage(JSON.parse(evt.data));
-  aiWs.onclose = () => { aiConnected = false; statusEl.textContent = 'Afbrudt'; statusEl.className = 'ai-connection-status'; };
-  aiWs.onerror = () => { statusEl.textContent = 'Fejl'; };
+  aiWs.onclose = () => { aiConnected = false; statusEl.textContent = t('ai.disconnected'); statusEl.className = 'ai-connection-status'; };
+  aiWs.onerror = () => { statusEl.textContent = t('ai.error'); };
 }
 
 function handleAIMessage(msg) {
   switch (msg.type) {
-    case 'connected': aiConnected = true; document.getElementById('ai-status').textContent = 'Forbundet'; document.getElementById('ai-status').className = 'ai-connection-status connected'; break;
+    case 'connected': aiConnected = true; document.getElementById('ai-status').textContent = t('ai.connected'); document.getElementById('ai-status').className = 'ai-connection-status connected'; break;
     case 'error': addAIMessage('system', msg.message || 'Ukendt fejl'); break;
     case 'response.audio.delta': if (msg.delta) queueAudio(msg.delta); break;
     case 'response.audio_transcript.delta': case 'response.text.delta':
@@ -2024,9 +2129,9 @@ function handleAIMessage(msg) {
         currentResponseText += msg.delta; currentResponseDiv.textContent = currentResponseText; scrollMessages(); } break;
     case 'response.audio_transcript.done': case 'response.text.done': case 'response.done': currentResponseDiv = null; currentResponseText = ''; break;
     case 'conversation.item.input_audio_transcription.completed': if (msg.transcript?.trim()) addAIMessage('user', msg.transcript.trim()); break;
-    case 'input_audio_buffer.speech_started': document.getElementById('ai-voice-hint').textContent = 'Lytter...'; break;
-    case 'input_audio_buffer.speech_stopped': document.getElementById('ai-voice-hint').textContent = 'Behandler...'; break;
-    case 'response.created': document.getElementById('ai-voice-hint').textContent = 'AI taler...'; break;
+    case 'input_audio_buffer.speech_started': document.getElementById('ai-voice-hint').textContent = t('ai.listening'); break;
+    case 'input_audio_buffer.speech_stopped': document.getElementById('ai-voice-hint').textContent = t('ai.processing'); break;
+    case 'response.created': document.getElementById('ai-voice-hint').textContent = t('ai.speaking'); break;
   }
 }
 
@@ -2052,14 +2157,14 @@ async function startRecording() {
     };
     source.connect(processor); processor.connect(audioContext.destination);
     isRecording = true; document.getElementById('ai-mic-btn').classList.add('recording');
-    document.getElementById('ai-voice-hint').textContent = 'Taler...';
+    document.getElementById('ai-voice-hint').textContent = t('ai.listening');
   } catch (err) { toast('Mikrofon fejl: '+err.message,'error'); }
 }
 
 function stopRecording() {
   if (!isRecording) return; isRecording = false;
   document.getElementById('ai-mic-btn').classList.remove('recording');
-  document.getElementById('ai-voice-hint').textContent = 'Hold mikrofonen nede for at tale';
+  document.getElementById('ai-voice-hint').textContent = t('ai.voiceHint');
   if (processor) { processor.disconnect(); processor = null; }
   if (audioContext) { audioContext.close(); audioContext = null; }
   if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
@@ -2098,6 +2203,58 @@ function arrayBufferToBase64(buf) {
   return btoa(bin);
 }
 
+// ===== COMMUNITY =====
+async function loadReddit(force = false) {
+  const feed = document.getElementById('reddit-feed');
+  try {
+    const r = await fetch('/api/reddit' + (force ? '?t=' + Date.now() : ''));
+    const d = await r.json();
+    if (!d.ok || !d.posts.length) { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorReddit')}</div>`; return; }
+    feed.innerHTML = '';
+    d.posts.forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'community-post';
+      a.href = p.url;
+      a.target = '_blank';
+      const date = new Date(p.created).toLocaleDateString('da-DK', { day:'numeric', month:'short' });
+      a.innerHTML = `<div class="community-post-title">${p.title}</div>
+        <div class="community-post-meta">
+          <span class="score">▲ ${p.score}</span>
+          <span>💬 ${p.comments}</span>
+          <span>u/${p.author}</span>
+          <span>${date}</span>
+          ${p.flair ? `<span class="flair">${p.flair}</span>` : ''}
+        </div>
+        ${p.selftext ? `<div class="community-post-body">${p.selftext}${p.selftext.length >= 200 ? '...' : ''}</div>` : ''}`;
+      feed.appendChild(a);
+    });
+  } catch { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorReddit')}</div>`; }
+}
+
+async function loadSteamDiscussions(force = false) {
+  const feed = document.getElementById('steam-disc-feed');
+  try {
+    const r = await fetch('/api/steam-discussions' + (force ? '?t=' + Date.now() : ''));
+    const d = await r.json();
+    if (!d.ok || !d.items.length) { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorSteam')}</div>`; return; }
+    feed.innerHTML = '';
+    d.items.forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'community-post';
+      a.href = p.url;
+      a.target = '_blank';
+      const date = p.date ? new Date(p.date).toLocaleDateString('da-DK', { day:'numeric', month:'short' }) : '';
+      a.innerHTML = `<div class="community-post-title">${p.title}</div>
+        <div class="community-post-meta">
+          ${p.author ? `<span>af ${p.author}</span>` : ''}
+          ${date ? `<span>${date}</span>` : ''}
+        </div>
+        ${p.description ? `<div class="community-post-body">${p.description}${p.description.length >= 200 ? '...' : ''}</div>` : ''}`;
+      feed.appendChild(a);
+    });
+  } catch { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorSteam')}</div>`; }
+}
+
 // ===== INIT =====
 loadAppConfig();
 restoreTab();
@@ -2116,6 +2273,8 @@ loadChallenges();
 loadDashboard();
 loadGlobalStats();
 loadNews();
+loadReddit();
+loadSteamDiscussions();
 setInterval(pollStatus, 5000);
 setInterval(loadAchievements, 30000);
 startLogPolling();

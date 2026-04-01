@@ -4,6 +4,7 @@
   "tabs.player": "Player",
   "tabs.global": "Global Stats",
   "tabs.news": "News",
+  "tabs.community": "Community",
 
   "server.control": "Server Control",
   "server.start": "Start Server",
@@ -145,6 +146,20 @@
 
   "news.title": "News from New World Interactive",
   "news.loading": "Loading news...",
+
+  "community.githubTitle": "Insurgency Sandstorm Server Manager",
+  "community.githubDesc": "Open source project on GitHub — free to use, share and contribute to.<br>Help the project by giving it a star!",
+  "community.githubStar": "⭐ Star on GitHub",
+  "community.githubView": "View Repository",
+  "community.redditTitle": "r/insurgency — Reddit",
+  "community.steamTitle": "Steam Community Discussions",
+  "community.refresh": "Refresh",
+  "community.loadingReddit": "Loading Reddit...",
+  "community.loadingSteam": "Loading Steam discussions...",
+  "community.errorReddit": "Could not load Reddit posts.",
+  "community.errorSteam": "Could not load Steam discussions.",
+
+  "server.mapPlaceholder": "Select a map",
 
   "ai.title": "AI Assistant",
   "ai.notConnected": "Not connected",

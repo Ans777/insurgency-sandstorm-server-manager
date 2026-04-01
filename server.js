@@ -1165,6 +1165,80 @@ app.get('/api/news', (req, res) => {
   });
 });
 
+// ===== REDDIT COMMUNITY =====
+let redditCache = null, redditCacheTime = 0;
+app.get('/api/reddit', (req, res) => {
+  if (redditCache && Date.now() - redditCacheTime < 300000) return res.json(redditCache);
+  const options = {
+    hostname: 'www.reddit.com',
+    path: '/r/insurgency/hot.json?limit=15',
+    headers: { 'User-Agent': 'InsurgencySandstormServerManager/1.0' }
+  };
+  https.get(options, (apiRes) => {
+    let data = '';
+    apiRes.on('data', chunk => data += chunk);
+    apiRes.on('end', () => {
+      try {
+        const json = JSON.parse(data);
+        const posts = (json.data?.children || [])
+          .filter(p => !p.data.stickied)
+          .map(p => ({
+            title: p.data.title,
+            url: 'https://www.reddit.com' + p.data.permalink,
+            author: p.data.author,
+            score: p.data.score,
+            comments: p.data.num_comments,
+            flair: p.data.link_flair_text || '',
+            selftext: (p.data.selftext || '').slice(0, 200),
+            created: new Date(p.data.created_utc * 1000).toISOString(),
+            thumbnail: (p.data.thumbnail && p.data.thumbnail.startsWith('http')) ? p.data.thumbnail : null
+          }));
+        redditCache = { ok: true, posts };
+        redditCacheTime = Date.now();
+        res.json(redditCache);
+      } catch (err) { res.json({ ok: false, error: err.message }); }
+    });
+  }).on('error', err => res.json({ ok: false, error: err.message }));
+});
+
+// ===== STEAM COMMUNITY DISCUSSIONS =====
+let steamDiscCache = null, steamDiscCacheTime = 0;
+app.get('/api/steam-discussions', (req, res) => {
+  if (steamDiscCache && Date.now() - steamDiscCacheTime < 600000) return res.json(steamDiscCache);
+  const url = `https://store.steampowered.com/widget/widget_forumtopics/?appid=581320&count=10&format=json`;
+  // Steam discussions via the GetDiscussionList API
+  const apiUrl = `https://api.steampowered.com/ISteamCommunity/GetCommentThread/v1/?appid=581320`;
+  // Use the community hub RSS feed instead
+  const options = {
+    hostname: 'steamcommunity.com',
+    path: '/games/581320/rss/?xml=1',
+    headers: { 'User-Agent': 'InsurgencySandstormServerManager/1.0' }
+  };
+  https.get(options, (apiRes) => {
+    let data = '';
+    apiRes.on('data', chunk => data += chunk);
+    apiRes.on('end', () => {
+      try {
+        // Parse RSS XML manually (no xml parser dependency)
+        const items = [];
+        const itemRe = /<item>([\s\S]*?)<\/item>/g;
+        let m;
+        while ((m = itemRe.exec(data)) !== null && items.length < 10) {
+          const block = m[1];
+          const get = (tag) => { const t = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}[^>]*>([^<]*)<\\/${tag}>`).exec(block); return t ? (t[1] || t[2] || '').trim() : ''; };
+          items.push({ title: get('title'), url: get('link'), author: get('dc:creator') || get('author'), date: get('pubDate'), description: get('description').replace(/<[^>]+>/g,'').slice(0,200) });
+        }
+        if (items.length > 0) {
+          steamDiscCache = { ok: true, items };
+          steamDiscCacheTime = Date.now();
+          return res.json(steamDiscCache);
+        }
+        res.json({ ok: false, error: 'No items' });
+      } catch (err) { res.json({ ok: false, error: err.message }); }
+    });
+  }).on('error', err => res.json({ ok: false, error: err.message }));
+});
+
 // OpenAI key management
 app.get('/api/ai/status', (req, res) => {
   res.json({ hasKey: !!openaiKey });

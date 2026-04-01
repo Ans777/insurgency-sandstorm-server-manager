@@ -4,6 +4,7 @@
   "tabs.player": "Spiller",
   "tabs.global": "Global Stats",
   "tabs.news": "Nyheder",
+  "tabs.community": "Community",
 
   "server.control": "Server Kontrol",
   "server.start": "Start Server",
@@ -144,7 +145,21 @@
   "global.comparisonHint": "Hvor mange procent af alle spillere har opn\u00e5et hver achievement. Dine er markeret.",
 
   "news.title": "Nyheder fra New World Interactive",
-  "news.loading": "Indl\u00e6ser nyheder...",
+  "news.loading": "Indlæser nyheder...",
+
+  "community.githubTitle": "Insurgency Sandstorm Server Manager",
+  "community.githubDesc": "Open source projekt på GitHub — fri at bruge, dele og bidrage til.<br>Hjælp projektet ved at give det en stjerne!",
+  "community.githubStar": "⭐ Star on GitHub",
+  "community.githubView": "View Repository",
+  "community.redditTitle": "r/insurgency — Reddit",
+  "community.steamTitle": "Steam Community Diskussioner",
+  "community.refresh": "Opdater",
+  "community.loadingReddit": "Indlæser Reddit...",
+  "community.loadingSteam": "Indlæser Steam diskussioner...",
+  "community.errorReddit": "Kunne ikke hente Reddit indlæg.",
+  "community.errorSteam": "Kunne ikke hente Steam diskussioner.",
+
+  "server.mapPlaceholder": "Vælg et map",
 
   "ai.title": "AI Assistent",
   "ai.notConnected": "Ikke forbundet",
