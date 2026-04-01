@@ -108,6 +108,8 @@
   "dashboard.activityHeatmap": "Activity by Hour",
   "dashboard.kdPerMap": "K/D per Map",
   "dashboard.kdPerWeapon": "K/D per Weapon (top 10)",
+  "dashboard.dailyLog": "Kills per Day (last 30 days)",
+  "dashboard.dailyLogEmpty": "No activity recorded yet. Play a session to start tracking.",
   "dashboard.loading": "Loading...",
 
   "challenges.title": "Challenges",

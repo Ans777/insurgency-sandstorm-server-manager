@@ -164,7 +164,8 @@ const DEFAULT_STATS = {
   sessions: [],
   challenges: {},
   killTimestamps: [],
-  deathTimestamps: []
+  deathTimestamps: [],
+  dailyKills: {}
 };
 
 function loadPlayerStats() {
@@ -984,6 +985,11 @@ app.post('/api/playerstats/kill', (req, res) => {
     if (!stats.killsPerWeapon) stats.killsPerWeapon = {};
     stats.killsPerWeapon[weapon] = (stats.killsPerWeapon[weapon] || 0) + 1;
   }
+  // Track daily kills
+  const today = new Date().toISOString().slice(0, 10);
+  if (!stats.dailyKills) stats.dailyKills = {};
+  if (!stats.dailyKills[today]) stats.dailyKills[today] = { kills: 0, deaths: 0 };
+  stats.dailyKills[today].kills++;
   // Track timestamp for heatmap
   if (!stats.killTimestamps) stats.killTimestamps = [];
   stats.killTimestamps.push(new Date().toISOString());
@@ -1049,6 +1055,11 @@ app.post('/api/playerstats/death', (req, res) => {
     stats.deathsPerMap[deathMap] = (stats.deathsPerMap[deathMap] || 0) + 1;
   }
   if (stats._currentSession) stats._currentSession.deaths++;
+  // Track daily deaths
+  const deathDay = new Date().toISOString().slice(0, 10);
+  if (!stats.dailyKills) stats.dailyKills = {};
+  if (!stats.dailyKills[deathDay]) stats.dailyKills[deathDay] = { kills: 0, deaths: 0 };
+  stats.dailyKills[deathDay].deaths++;
   updateRankAndMedals(stats);
   savePlayerStats(stats);
   res.json({ ok: true, totalDeaths: stats.totalDeaths });

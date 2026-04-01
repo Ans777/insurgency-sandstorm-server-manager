@@ -109,6 +109,8 @@
   "dashboard.kdPerMap": "K/D pr. Map",
   "dashboard.kdPerWeapon": "K/D pr. V\u00e5ben (top 10)",
   "dashboard.loading": "Indl\u00e6ser...",
+  "dashboard.dailyLog": "Kills pr. Dag (sidste 30 dage)",
+  "dashboard.dailyLogEmpty": "Ingen aktivitet registreret endnu. Spil en session for at starte.",
 
   "challenges.title": "Udfordringer",
   "challenges.active": "Aktive",

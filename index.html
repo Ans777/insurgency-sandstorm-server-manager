@@ -449,6 +449,12 @@
           <div id="kd-weapon-bars"></div>
         </div>
       </div>
+      <!-- Daily kills log -->
+      <div style="margin-top:14px;">
+        <h2 style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;" data-i18n="dashboard.dailyLog">Kills pr. Dag (sidste 30 dage)</h2>
+        <div id="daily-kills-chart" style="display:flex; align-items:flex-end; gap:4px; height:80px; overflow-x:auto; padding-bottom:4px;"></div>
+        <div id="daily-kills-table" style="margin-top:10px; max-height:160px; overflow-y:auto;"></div>
+      </div>
     </div>
   </div>
 
@@ -1472,6 +1478,7 @@ async function loadDashboard() {
       renderSessionGraph(stats.sessions || []);
       renderKDperMap(stats.killsPerMap || {}, stats.deathsPerMap || {});
       renderKDperWeapon(stats.killsPerWeapon || {}, stats.deathsByWeapon || {});
+      renderDailyKills(stats.dailyKills || {});
     }
     if (daily.ok) renderDailyChallenge(daily);
   } catch {}
@@ -1573,6 +1580,50 @@ function renderKDperMap(killsMap, deathsMap) {
 function renderKDperWeapon(killsW, deathsW) {
   const container = document.getElementById('kd-weapon-bars');
   renderKDStatBars(container, killsW, deathsW, 10);
+}
+
+function renderDailyKills(dailyKills) {
+  const chart = document.getElementById('daily-kills-chart');
+  const table = document.getElementById('daily-kills-table');
+  if (!chart || !table) return;
+
+  // Build last 30 days
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    days.push({ key, label: d.toLocaleDateString('da-DK', { day:'numeric', month:'short' }), data: dailyKills[key] || { kills: 0, deaths: 0 } });
+  }
+
+  const maxKills = Math.max(...days.map(d => d.data.kills), 1);
+  const activeDays = days.filter(d => d.data.kills > 0 || d.data.deaths > 0);
+
+  // Bar chart
+  chart.innerHTML = '';
+  days.forEach(d => {
+    const bar = document.createElement('div');
+    const pct = Math.round(d.data.kills / maxKills * 100);
+    bar.style.cssText = `flex:1; min-width:8px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:2px;`;
+    bar.title = `${d.key}\n${d.data.kills} kills / ${d.data.deaths} deaths`;
+    bar.innerHTML = `<div style="width:100%; height:${Math.max(pct, d.data.kills > 0 ? 4 : 0)}%; background:${d.data.kills > 0 ? 'var(--accent)' : 'var(--border)'}; border-radius:2px 2px 0 0; min-height:${d.data.kills > 0 ? '4px' : '0'};"></div>`;
+    chart.appendChild(bar);
+  });
+
+  // Table — only days with activity
+  if (activeDays.length === 0) {
+    table.innerHTML = `<div style="font-size:11px;color:var(--text-dim);">${t('dashboard.dailyLogEmpty')}</div>`;
+    return;
+  }
+  const rows = [...activeDays].reverse().map(d => {
+    const kd = d.data.deaths > 0 ? (d.data.kills / d.data.deaths).toFixed(2) : d.data.kills.toFixed(0);
+    return `<div style="display:grid;grid-template-columns:110px 60px 60px 60px;gap:8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--text-dim)">${d.key}</span>
+      <span style="color:var(--accent);font-weight:600">${d.data.kills} kills</span>
+      <span style="color:var(--red)">${d.data.deaths} deaths</span>
+      <span style="color:var(--text-dim)">${kd} K/D</span>
+    </div>`;
+  }).join('');
+  table.innerHTML = rows;
 }
 
 function renderKDStatBars(container, kills, deaths, limit) {
