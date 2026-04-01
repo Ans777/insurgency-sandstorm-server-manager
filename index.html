@@ -878,13 +878,13 @@ async function pollStatus() {
     const statsBar = document.getElementById('stats-bar');
     if (data.running) {
       badge.className = 'status-badge running';
-      text.textContent = `Kører (PID: ${data.pid})`;
+      text.textContent = `${t('server.running')} (PID: ${data.pid})`;
       statsBar.style.display = 'flex';
       document.getElementById('stat-pid').textContent = data.pid;
       pollStats(data.pid);
     } else {
       badge.className = 'status-badge stopped';
-      text.textContent = 'Stoppet';
+      text.textContent = t('server.stopped');
       statsBar.style.display = 'none';
     }
     document.getElementById('auto-restart').checked = data.autoRestart;
@@ -1088,7 +1088,7 @@ async function loadPresets() {
   try {
     const r = await fetch('/api/presets'); const d = await r.json();
     const sel = document.getElementById('preset-select');
-    sel.innerHTML = '<option value="">-- Vælg Preset --</option>';
+    sel.innerHTML = `<option value="">${t('presets.select')}</option>`;
     if (d.ok) d.presets.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name; o.dataset.preset = JSON.stringify(p); sel.appendChild(o); });
   } catch {}
 }
