@@ -1302,14 +1302,11 @@ app.get('/api/reddit', (req, res) => {
 // ===== STEAM COMMUNITY DISCUSSIONS =====
 let steamDiscCache = null, steamDiscCacheTime = 0;
 app.get('/api/steam-discussions', (req, res) => {
-  if (steamDiscCache && Date.now() - steamDiscCacheTime < 600000) return res.json(steamDiscCache);
-  const url = `https://store.steampowered.com/widget/widget_forumtopics/?appid=581320&count=10&format=json`;
-  // Steam discussions via the GetDiscussionList API
-  const apiUrl = `https://api.steampowered.com/ISteamCommunity/GetCommentThread/v1/?appid=581320`;
-  // Use the community hub RSS feed instead
+  const force = req.query.force === '1';
+  if (!force && steamDiscCache && Date.now() - steamDiscCacheTime < 120000) return res.json(steamDiscCache);
   const options = {
     hostname: 'steamcommunity.com',
-    path: '/games/581320/rss/?xml=1',
+    path: '/app/581320/discussions/0/rss/',
     headers: { 'User-Agent': 'InsurgencySandstormServerManager/1.0' }
   };
   https.get(options, (apiRes) => {

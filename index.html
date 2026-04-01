@@ -2268,7 +2268,7 @@ async function loadReddit(force = false) {
 async function loadSteamDiscussions(force = false) {
   const feed = document.getElementById('steam-disc-feed');
   try {
-    const r = await fetch('/api/steam-discussions' + (force ? '?t=' + Date.now() : ''));
+    const r = await fetch('/api/steam-discussions' + (force ? '?force=1' : ''));
     const d = await r.json();
     if (!d.ok || !d.items.length) { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorSteam')}</div>`; return; }
     feed.innerHTML = '';
