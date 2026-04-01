@@ -1,0 +1,16 @@
+{
+  "name": "insurgency-sandstorm-server-manager",
+  "version": "1.0.0",
+  "description": "Web-based local server manager for Insurgency: Sandstorm with gamification, kill tracking, AI assistant, and Steam integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["insurgency", "sandstorm", "server", "manager", "gamification"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ws": "^8.20.0"
+  }
+}

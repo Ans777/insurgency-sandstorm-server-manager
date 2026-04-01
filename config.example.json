@@ -1,0 +1,13 @@
+{
+  "language": "en",
+  "managerPort": 3000,
+  "steamDir": "",
+  "serverDir": "",
+  "gameDir": "",
+  "playerName": "",
+  "steamId": "",
+  "gsltToken": "",
+  "openaiKey": "",
+  "port": 27102,
+  "queryPort": 27131
+}
