@@ -2282,8 +2282,8 @@ async function loadSteamDiscussions(force = false) {
         <div class="community-post-meta">
           ${p.author ? `<span>af ${p.author}</span>` : ''}
           ${date ? `<span>${date}</span>` : ''}
-        </div>
-        ${p.description ? `<div class="community-post-body">${p.description}${p.description.length >= 200 ? '...' : ''}</div>` : ''}`;
+          ${p.replies !== undefined ? `<span>💬 ${p.replies}</span>` : ''}
+        </div>`;
       feed.appendChild(a);
     });
   } catch { feed.innerHTML = `<div style="font-size:12px;color:var(--text-dim)">${t('community.errorSteam')}</div>`; }

@@ -1306,29 +1306,34 @@ app.get('/api/steam-discussions', (req, res) => {
   if (!force && steamDiscCache && Date.now() - steamDiscCacheTime < 120000) return res.json(steamDiscCache);
   const options = {
     hostname: 'steamcommunity.com',
-    path: '/app/581320/discussions/0/rss/',
-    headers: { 'User-Agent': 'InsurgencySandstormServerManager/1.0' }
+    path: '/app/581320/discussions/',
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
   };
   https.get(options, (apiRes) => {
     let data = '';
     apiRes.on('data', chunk => data += chunk);
     apiRes.on('end', () => {
       try {
-        // Parse RSS XML manually (no xml parser dependency)
         const items = [];
-        const itemRe = /<item>([\s\S]*?)<\/item>/g;
+        const topicRe = /data-gidforumtopic="(\d+)"[\s\S]*?forum_topic_overlay"\s+href="([^"]+)"[\s\S]*?forum_topic_name[^>]*>([\s\S]*?)<\/div>[\s\S]*?forum_topic_op[^>]*>\s*([\s\S]*?)\s*<\/div>[\s\S]*?forum_topic_reply_count[^>]*>[\s\S]*?(\d+)\s*<\/div>[\s\S]*?data-timestamp="(\d+)"/g;
         let m;
-        while ((m = itemRe.exec(data)) !== null && items.length < 10) {
-          const block = m[1];
-          const get = (tag) => { const t = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}[^>]*>([^<]*)<\\/${tag}>`).exec(block); return t ? (t[1] || t[2] || '').trim() : ''; };
-          items.push({ title: get('title'), url: get('link'), author: get('dc:creator') || get('author'), date: get('pubDate'), description: get('description').replace(/<[^>]+>/g,'').slice(0,200) });
+        while ((m = topicRe.exec(data)) !== null && items.length < 15) {
+          const title = m[3].replace(/<[^>]+>/g, '').trim();
+          if (!title) continue;
+          items.push({
+            title,
+            url: m[2],
+            author: m[4].replace(/<[^>]+>/g, '').trim(),
+            replies: parseInt(m[5]) || 0,
+            date: new Date(parseInt(m[6]) * 1000).toISOString()
+          });
         }
         if (items.length > 0) {
           steamDiscCache = { ok: true, items };
           steamDiscCacheTime = Date.now();
           return res.json(steamDiscCache);
         }
-        res.json({ ok: false, error: 'No items' });
+        res.json({ ok: false, error: 'No items parsed' });
       } catch (err) { res.json({ ok: false, error: err.message }); }
     });
   }).on('error', err => res.json({ ok: false, error: err.message }));
