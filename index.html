@@ -888,6 +888,7 @@ async function pollStatus() {
       statsBar.style.display = 'flex';
       document.getElementById('stat-pid').textContent = data.pid;
       pollStats(data.pid);
+      if (!logInterval) startLogPolling();
     } else {
       badge.className = 'status-badge stopped';
       text.textContent = t('server.stopped');
