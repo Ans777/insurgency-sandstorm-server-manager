@@ -1383,28 +1383,28 @@ function updateStreakDisplay(streak) {
   else el.innerHTML = '';
 }
 
-async function recordKill(role, rawWeapon) {
-  const map = document.getElementById('start-map').value;
-  const weapon = rawWeapon ? weaponName(rawWeapon) : '';
-  try {
-    const r = await fetch('/api/playerstats/kill', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ role, map, weapon }) });
-    const d = await r.json();
-    if (d.ok) {
-      updateStreakDisplay(d.currentStreak);
-      playSound('kill');
-      if (d.rankedUp) showRankUp(d.rank);
-      if (d.newMedals && d.newMedals.length > 0) d.newMedals.forEach(() => showMedalUnlock());
-      loadGamification();
-    }
-  } catch {}
+// Kill/death stats are now tracked server-side. Browser only handles display.
+function recordKill(role, rawWeapon) {
+  playSound('kill');
+  setTimeout(refreshGamification, 300);
 }
 
-async function recordDeath(rawWeapon) {
-  const weapon = rawWeapon ? weaponName(rawWeapon) : '';
-  const map = document.getElementById('start-map').value;
+function recordDeath(rawWeapon) {
+  updateStreakDisplay(0);
+  setTimeout(refreshGamification, 300);
+}
+
+let _lastRank = null, _lastMedalCount = 0;
+async function refreshGamification() {
   try {
-    await fetch('/api/playerstats/death', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ weapon, map }) });
-    updateStreakDisplay(0);
+    const r = await fetch('/api/playerstats');
+    const d = await r.json();
+    if (!d.ok) return;
+    updateStreakDisplay(d.currentStreak);
+    if (_lastRank && d.rank !== _lastRank) showRankUp(d.rank);
+    if (d.medals.length > _lastMedalCount) { for (let i = 0; i < d.medals.length - _lastMedalCount; i++) showMedalUnlock(); }
+    _lastRank = d.rank;
+    _lastMedalCount = d.medals.length;
     loadGamification();
   } catch {}
 }
@@ -2311,6 +2311,7 @@ loadReddit();
 loadSteamDiscussions();
 setInterval(pollStatus, 5000);
 setInterval(loadAchievements, 30000);
+setInterval(refreshGamification, 3000);
 startLogPolling();
 </script>
 </body>

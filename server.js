@@ -269,6 +269,61 @@ let serverProcess = null;
 let serverLog = [];
 const MAX_LOG_LINES = 500;
 
+function serverWeaponName(raw) {
+  if (!raw) return '';
+  return raw.replace(/^(Firearm|Projectile)_/, '').replace(/_/g, ' ');
+}
+
+function recordKillServerSide(victimRole, map, weapon) {
+  const stats = loadPlayerStats();
+  stats.totalKills++;
+  stats.currentStreak++;
+  if (stats.currentStreak > stats.bestStreak) stats.bestStreak = stats.currentStreak;
+  if (victimRole) stats.killsPerRole[victimRole] = (stats.killsPerRole[victimRole] || 0) + 1;
+  if (map) stats.killsPerMap[map] = (stats.killsPerMap[map] || 0) + 1;
+  if (weapon) { if (!stats.killsPerWeapon) stats.killsPerWeapon = {}; stats.killsPerWeapon[weapon] = (stats.killsPerWeapon[weapon] || 0) + 1; }
+  const today = new Date().toISOString().slice(0, 10);
+  if (!stats.dailyKills) stats.dailyKills = {};
+  if (!stats.dailyKills[today]) stats.dailyKills[today] = { kills: 0, deaths: 0 };
+  stats.dailyKills[today].kills++;
+  if (!stats.killTimestamps) stats.killTimestamps = [];
+  stats.killTimestamps.push(new Date().toISOString());
+  if (!stats._currentSession) { stats._currentSession = { date: new Date().toISOString(), kills: 0, deaths: 0, map: map || '', topWeapon: '' }; stats.sessions.push(stats._currentSession); }
+  stats._currentSession.kills++;
+  if (map) stats._currentSession.map = map;
+  if (weapon) { stats._currentSession._weapons = stats._currentSession._weapons || {}; stats._currentSession._weapons[weapon] = (stats._currentSession._weapons[weapon] || 0) + 1; stats._currentSession.topWeapon = Object.entries(stats._currentSession._weapons).sort((a,b)=>b[1]-a[1])[0][0]; }
+  if (stats._currentSession.kills > stats.bestGame) stats.bestGame = stats._currentSession.kills;
+  const prevRank = stats.rank;
+  const prevMedals = [...stats.medals];
+  updateRankAndMedals(stats);
+  savePlayerStats(stats);
+  const newMedals = stats.medals.filter(m => !prevMedals.includes(m));
+  const rankedUp = stats.rank !== prevRank;
+  if (serverProcess && serverProcess.exitCode === null) {
+    const pName = config.playerName || 'Player';
+    if (rankedUp) { try { serverProcess.stdin.write(`say ${pName} promoted to ${stats.rank}!\n`); } catch {} }
+    newMedals.forEach(mId => { const medal = MEDAL_DEFS.find(m => m.id === mId); if (medal) { try { serverProcess.stdin.write(`say ${pName} earned medal: ${medal.name}!\n`); } catch {} } });
+    if (stats.currentStreak > 0 && stats.currentStreak % 10 === 0) { try { serverProcess.stdin.write(`say ${pName} has a ${stats.currentStreak} KILL STREAK!\n`); } catch {} }
+  }
+}
+
+function recordDeathServerSide(weapon, map) {
+  const stats = loadPlayerStats();
+  stats.totalDeaths++;
+  stats.currentStreak = 0;
+  if (weapon) { if (!stats.deathsByWeapon) stats.deathsByWeapon = {}; stats.deathsByWeapon[weapon] = (stats.deathsByWeapon[weapon] || 0) + 1; }
+  if (!stats.deathTimestamps) stats.deathTimestamps = [];
+  stats.deathTimestamps.push(new Date().toISOString());
+  if (map) { if (!stats.deathsPerMap) stats.deathsPerMap = {}; stats.deathsPerMap[map] = (stats.deathsPerMap[map] || 0) + 1; }
+  if (stats._currentSession) stats._currentSession.deaths++;
+  const today = new Date().toISOString().slice(0, 10);
+  if (!stats.dailyKills) stats.dailyKills = {};
+  if (!stats.dailyKills[today]) stats.dailyKills[today] = { kills: 0, deaths: 0 };
+  stats.dailyKills[today].deaths++;
+  updateRankAndMedals(stats);
+  savePlayerStats(stats);
+}
+
 // Auto-restart state
 let autoRestart = false;
 let lastStartParams = null;
@@ -377,6 +432,28 @@ function startServerProcess(params) {
           const entry = `[${new Date().toLocaleTimeString('da-DK')}] ${clean}`;
           serverLog.push(entry);
           if (serverLog.length > MAX_LOG_LINES) serverLog.shift();
+
+          // Server-side kill/death tracking
+          if (config.playerName) {
+            const killMatch = clean.match(/Display:\s+(.+?)\s+killed\s+(.+?)\s+with\s+BP_(\w+?)_C/);
+            if (killMatch) {
+              const killerStr = killMatch[1].trim();
+              const victimStr = killMatch[2].trim();
+              const rawWeapon = killMatch[3];
+              const pNameEsc = config.playerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const isYourKill = new RegExp(pNameEsc).test(killerStr);
+              const youDied = new RegExp(pNameEsc).test(victimStr);
+              const isEnemyVictim = /team 1/.test(victimStr);
+              const map = lastStartParams ? lastStartParams.map : '';
+              const weapon = serverWeaponName(rawWeapon);
+              if (isYourKill && isEnemyVictim) {
+                const role = victimStr.replace(/\[.*?\]/g, '').trim();
+                recordKillServerSide(role, map, weapon);
+              } else if (youDied) {
+                recordDeathServerSide(weapon, map);
+              }
+            }
+          }
         }
       });
     } catch {}
