@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurgency Sandstorm – Local Server Manager – User Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #232733; --border: #2e3345;
+      --text: #e2e4ea; --text-dim: #8b8fa3;
+      --accent: #c8915e; --green: #4ade80; --red: #f87171; --blue: #60a5fa;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* Print */
+    @media print {
+      body { background: #fff; color: #111; }
+      :root { --bg: #fff; --surface: #f5f5f5; --surface2: #ebebeb; --border: #ddd; --text: #111; --text-dim: #555; --accent: #b07040; --green: #2a8a50; --red: #c0392b; --blue: #2563eb; }
+      .no-print { display: none; }
+      .page-break { page-break-before: always; }
+      a { color: var(--accent); }
+    }
+
+    .cover { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; background: linear-gradient(160deg, #0f1117 0%, #1a1d27 100%); border-bottom: 2px solid var(--border); }
+    .cover-logo { font-size: 13px; letter-spacing: 4px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 20px; }
+    .cover h1 { font-size: 42px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
+    .cover h1 span { color: var(--accent); }
+    .cover-sub { font-size: 16px; color: var(--text-dim); margin-bottom: 40px; }
+    .cover-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(200,145,94,0.12); border: 1px solid rgba(200,145,94,0.3); border-radius: 20px; padding: 8px 20px; font-size: 13px; color: var(--accent); margin-bottom: 48px; }
+    .cover-toc { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 32px; max-width: 420px; width: 100%; }
+    .cover-toc h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 14px; }
+    .cover-toc ol { padding-left: 18px; }
+    .cover-toc li { margin-bottom: 6px; font-size: 14px; }
+    .cover-toc a { color: var(--text); text-decoration: none; }
+    .cover-toc a:hover { color: var(--accent); }
+
+    .doc { max-width: 780px; margin: 0 auto; padding: 60px 40px; }
+    h2 { font-size: 26px; font-weight: 700; color: var(--accent); margin: 48px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(200,145,94,0.15); border: 1px solid rgba(200,145,94,0.3); border-radius: 50%; font-size: 14px; flex-shrink: 0; }
+    h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 28px 0 10px; }
+    p { font-size: 14px; color: var(--text-dim); margin-bottom: 12px; }
+    p strong { color: var(--text); }
+
+    .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 16px 0; font-size: 13px; color: var(--text-dim); }
+    .callout.green { border-left-color: var(--green); }
+    .callout.blue { border-left-color: var(--blue); }
+    .callout strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+    .feature-card .icon { font-size: 20px; margin-bottom: 6px; }
+    .feature-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .feature-card p { font-size: 12px; margin: 0; }
+
+    .steps { counter-reset: step; margin: 16px 0; }
+    .step { display: flex; gap: 16px; margin-bottom: 16px; }
+    .step-num { counter-increment: step; display: flex; align-items: flex-start; justify-content: center; width: 28px; height: 28px; min-width: 28px; background: var(--accent); color: #0f1117; border-radius: 50%; font-size: 13px; font-weight: 700; padding-top: 5px; }
+    .step-body h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .step-body p { font-size: 13px; margin: 0; }
+
+    code { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 12px; color: var(--accent); }
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; overflow-x: auto; margin: 12px 0; }
+    pre code { background: none; border: none; padding: 0; font-size: 12px; color: var(--text-dim); }
+
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    th { text-align: left; padding: 10px 12px; background: var(--surface); color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 2px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; white-space: nowrap; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .tag.optional { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); }
+    .tag.required { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+    .tag.recommended { background: rgba(74,222,128,0.15); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
+
+    .tab-desc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; }
+    .tab-desc .tab-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .tab-desc .tab-name { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; background: rgba(200,145,94,0.15); color: var(--accent); border-radius: 4px; padding: 3px 10px; }
+    .tab-desc p { margin-bottom: 8px; }
+    .tab-desc ul { padding-left: 18px; font-size: 13px; color: var(--text-dim); }
+    .tab-desc ul li { margin-bottom: 4px; }
+
+    .print-btn { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--accent); color: #0f1117; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(200,145,94,0.3); }
+    .print-btn:hover { background: #d9a76e; }
+
+    footer { text-align: center; padding: 40px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--border); margin-top: 60px; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+  <div class="cover-logo">User Guide &amp; Documentation</div>
+  <h1>INSURGENCY <span>SANDSTORM</span><br>Local Server Manager</h1>
+  <div class="cover-sub">A web-based manager for your local dedicated server —<br>with gamification, stats tracking, AI assistant, and community integration.</div>
+  <div class="cover-badge">&#127381; Open Source &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; github.com/Ans777/insurgency-sandstorm-server-manager</div>
+  <div class="cover-toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#concept">Concept &amp; Idea</a></li>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#configuration">Configuration</a></li>
+      <li><a href="#tabs">Using the App</a></li>
+      <li><a href="#gameini">Game.ini Reference</a></li>
+      <li><a href="#tips">Tips &amp; Tricks</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ol>
+  </div>
+</div>
+
+<div class="doc">
+
+<!-- 1. Concept -->
+<h2 id="concept"><span class="num">1</span> Concept &amp; Idea</h2>
+
+<p>
+  Insurgency: Sandstorm has a dedicated server tool that lets you host matches on your own PC — complete with bots, custom settings, and full control over the experience. However, managing it has always meant editing INI files by hand, running commands in a terminal, and keeping track of log files yourself.
+</p>
+<p>
+  <strong>Insurgency Sandstorm Local Server Manager</strong> wraps all of that into a clean, browser-based interface that runs locally on your machine. You open <code>http://127.0.0.1:3000</code> in your browser, and from there you can start and stop your server, tweak every gameplay setting, watch the live log — and also track your own performance with a full rank and medal system.
+</p>
+
+<div class="callout blue">
+  <strong>Who is this for?</strong>
+  Players who run a local dedicated server on their own PC, primarily for solo or LAN play with friendly bots. The app is designed for <strong>local use only</strong> — it does not include authentication, so it should not be exposed on the internet.
+</div>
+
+<h3>What makes it different?</h3>
+<div class="feature-grid">
+  <div class="feature-card">
+    <div class="icon">&#9881;</div>
+    <h4>Full Server Control</h4>
+    <p>Start, stop and configure your server without touching a single INI file manually.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">&#127942;</div>
+    <h4>Gamification</h4>
+    <p>Your kills are tracked in real time. Earn ranks, unlock medals, and complete daily challenges.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">&#127760;</div>
+    <h4>Steam Integration</h4>
+    <p>See your achievement progress, compare with all players globally, and read the latest patch notes.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">&#129302;</div>
+    <h4>AI Assistant</h4>
+    <p>Voice and text assistant powered by OpenAI — specialized in Sandstorm server administration.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">&#128101;</div>
+    <h4>Community</h4>
+    <p>Live Reddit and Steam Community feeds, so you never miss a patch note or community discussion.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">&#127758;</div>
+    <h4>Multi-Language</h4>
+    <p>Fully translated UI. English and Danish included. Easy to add more languages.</p>
+  </div>
+</div>
+
+
+<!-- 2. Requirements -->
+<h2 id="requirements" class="page-break"><span class="num">2</span> Requirements</h2>
+
+<table>
+  <thead><tr><th>Requirement</th><th>Details</th><th></th></tr></thead>
+  <tbody>
+    <tr><td>Node.js</td><td>Version 18 or later — <a href="https://nodejs.org">nodejs.org</a></td><td><span class="tag required">Required</span></td></tr>
+    <tr><td>Steam</td><td>Installed and running on the same machine</td><td><span class="tag required">Required</span></td></tr>
+    <tr><td>Insurgency: Sandstorm</td><td>Game client installed via Steam (App ID 581320)</td><td><span class="tag required">Required</span></td></tr>
+    <tr><td>Sandstorm Dedicated Server</td><td>Installed via Steam (Tools → App ID 581330)</td><td><span class="tag required">Required</span></td></tr>
+    <tr><td>GSLT Token</td><td>Game Server Login Token — needed for your player name to show in the app and for XP rewards</td><td><span class="tag recommended">Recommended</span></td></tr>
+    <tr><td>OpenAI API Key</td><td>Required only for the AI voice assistant feature</td><td><span class="tag optional">Optional</span></td></tr>
+    <tr><td>Steam Web API Key</td><td>Used for achievements and live player count</td><td><span class="tag optional">Optional</span></td></tr>
+  </tbody>
+</table>
+
+<div class="callout green">
+  <strong>Installing the dedicated server</strong>
+  In Steam, go to <strong>Library → Tools</strong> and search for "Insurgency: Sandstorm Dedicated Server". Install it like a normal game. It will appear in your Steam folder under <code>steamapps/common/sandstorm_server</code>.
+</div>
+
+
+<!-- 3. Installation -->
+<h2 id="installation"><span class="num">3</span> Installation</h2>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <h4>Download or clone the project</h4>
+      <p>Download from <a href="https://github.com/Ans777/insurgency-sandstorm-server-manager">GitHub</a> as a ZIP and extract it, or clone with Git:</p>
+      <pre><code>git clone https://github.com/Ans777/insurgency-sandstorm-server-manager.git</code></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <h4>Install dependencies</h4>
+      <p>Open a terminal in the project folder and run:</p>
+      <pre><code>npm install</code></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <h4>Start the manager</h4>
+      <p>On Windows, double-click <code>start.bat</code>. Or from the terminal:</p>
+      <pre><code>node server.js</code></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <h4>Run the setup wizard</h4>
+      <p>Your browser will open automatically to <code>http://127.0.0.1:3000</code>. If no config exists yet, the setup wizard starts. Fill in your paths and optional tokens — the app will auto-detect Steam if installed in a standard location.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 4. Configuration -->
+<h2 id="configuration" class="page-break"><span class="num">4</span> Configuration</h2>
+
+<p>All settings are stored in <code>config.json</code> in the project folder. This file is created automatically by the setup wizard and is excluded from Git (it contains your personal paths and tokens).</p>
+
+<pre><code>{
+  "language":    "en",          // UI language: "en" or "da"
+  "managerPort": 3000,          // Port the web interface runs on
+  "steamDir":    "D:\\Steam",   // Path to your Steam installation
+  "serverDir":   "D:\\Steam\\steamapps\\common\\sandstorm_server",
+  "gameDir":     "D:\\Steam\\steamapps\\common\\sandstorm",
+  "playerName":  "",            // Auto-detected from server log on first login
+  "steamId":     "",            // Auto-detected from Steam userdata folder
+  "gsltToken":   "",            // Game Server Login Token (see below)
+  "openaiKey":   "",            // OpenAI API key for AI assistant
+  "port":        27102,         // Server game port
+  "queryPort":   27131          // Server query port
+}</code></pre>
+
+<h3>GSLT Token</h3>
+<p>A Game Server Login Token (GSLT) allows your player name to appear in the app and enables XP rewards. Without it, the app shows "Player" as your name and kill tracking still works, but you won't see your rank name from Steam.</p>
+<div class="steps">
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body"><h4>Go to Steam Game Server Account Management</h4><p><a href="https://steamcommunity.com/dev/managegameservers">steamcommunity.com/dev/managegameservers</a></p></div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body"><h4>Create a new token</h4><p>Enter App ID <code>581320</code> (the game, not the dedicated server tool). Add a memo like "local server".</p></div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body"><h4>Paste the token</h4><p>Enter it in the setup wizard or directly in <code>config.json</code> under <code>"gsltToken"</code>.</p></div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Note:</strong> Steam requires that you own Insurgency: Sandstorm to create a GSLT. If your account doesn't own the game, the token creation will fail.
+</div>
+
+<h3>Adding More Languages</h3>
+<p>Copy <code>lang/en.json</code> to <code>lang/xx.json</code> (where <code>xx</code> is the language code, e.g. <code>fr</code> for French) and translate the values. Then select your language in the setup wizard or set <code>"language": "xx"</code> in <code>config.json</code>.</p>
+
+
+<!-- 5. Using the App -->
+<h2 id="tabs" class="page-break"><span class="num">5</span> Using the App</h2>
+
+<p>The app is divided into five tabs, each covering a different area. Here is what each tab does and how to use it.</p>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">Server</span></div>
+  <p>The main control panel for your dedicated server. From here you can:</p>
+  <ul>
+    <li><strong>Start / Stop</strong> the dedicated server process. Use "Dedicated + Connect" to start the server and immediately launch the game client to join it.</li>
+    <li><strong>Select map, game mode, and side</strong> for the next server start.</li>
+    <li><strong>Quick Settings</strong> — adjust bot counts, difficulty, supply, respawn waves and more without editing INI files. Changes are written to Game.ini and take effect on the next server start.</li>
+    <li><strong>Mutators</strong> — toggle special game modes like Frenzy, Vampirism, or BulletSponge.</li>
+    <li><strong>Presets</strong> — save your favourite configurations and load them with one click.</li>
+    <li><strong>MapCycle editor</strong> — define the map rotation for longer sessions.</li>
+    <li><strong>Game.ini editor</strong> — full manual access to the config file with backup and restore.</li>
+    <li><strong>Mod Manager</strong> — browse and toggle installed mod.io mods.</li>
+    <li><strong>Server Log</strong> — live log viewer with search, filters, and RCON console.</li>
+  </ul>
+</div>
+
+<div class="callout">
+  <strong>Auto-restart:</strong> Check the "Auto-restart" box to have the manager automatically restart the server if it crashes. Useful for long overnight sessions.
+</div>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">Player</span></div>
+  <p>Your personal statistics and gamification panel. Kill tracking is done via the server log — only your kills count, not bot kills or other players.</p>
+  <ul>
+    <li><strong>Rank &amp; Career</strong> — 12 military ranks from Recruit to Field Marshal, based on total kills.</li>
+    <li><strong>Medals</strong> — 37+ medals for kill milestones, streaks, weapon mastery, and map mastery.</li>
+    <li><strong>Challenges</strong> — pick from a list of challenges (e.g. "Get 10 kills with a pistol"). Daily challenges auto-rotate.</li>
+    <li><strong>Kill Feed</strong> — live feed of kills and deaths with weapon info and color coding.</li>
+    <li><strong>Dashboard</strong> — session performance graph, activity heatmap by hour, K/D per map and per weapon.</li>
+    <li><strong>Achievements</strong> — your Steam achievements with unlock status and progress.</li>
+  </ul>
+</div>
+
+<div class="callout green">
+  <strong>Getting kill tracking to work:</strong> The server must be started with the <code>-LogCmds="LogGameplayEvents Log"</code> parameter, which the app adds automatically. Your player name is detected from the server log the first time you connect.
+</div>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">Global Stats</span></div>
+  <p>Live data from Steam about Insurgency: Sandstorm as a whole.</p>
+  <ul>
+    <li>Current number of players online worldwide.</li>
+    <li>Your stats compared to the global average — see how your achievement progress stacks up against all players.</li>
+  </ul>
+</div>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">News</span></div>
+  <p>Latest news and patch notes from New World Interactive, fetched directly from the Steam news feed. Cached for 10 minutes to avoid unnecessary API calls.</p>
+</div>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">Community</span></div>
+  <p>Stay connected with the Insurgency community without leaving the app.</p>
+  <ul>
+    <li><strong>Reddit</strong> — top posts from r/insurgency, updated every 5 minutes. Click any post to open it in your browser.</li>
+    <li><strong>Steam Discussions</strong> — latest threads from the Steam Community Hub.</li>
+    <li><strong>GitHub</strong> — link to the project repository. If you find the app useful, a ⭐ on GitHub helps others discover it!</li>
+  </ul>
+</div>
+
+<div class="tab-desc">
+  <div class="tab-header"><span class="tab-name">AI Assistant</span></div>
+  <p>A floating panel accessible from any tab via the brain icon in the bottom-right corner. Requires an OpenAI API key.</p>
+  <ul>
+    <li>Voice input — hold the microphone button to speak.</li>
+    <li>Text input — type your question and press Enter or Send.</li>
+    <li>Specialized in Sandstorm server admin: Game.ini settings, bot configuration, maps, mods, and more.</li>
+  </ul>
+</div>
+
+
+<!-- 6. Game.ini Reference -->
+<h2 id="gameini" class="page-break"><span class="num">6</span> Key Game.ini Settings</h2>
+
+<p>The app writes settings to the correct config file automatically:</p>
+<pre><code>sandstorm_server/Insurgency/Saved/Config/WindowsServer/Game.ini</code></pre>
+
+<table>
+  <thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>bBots</td><td>True</td><td>Enable bot system. Must be True for friendly bots to work.</td></tr>
+    <tr><td>FriendlyBotQuota</td><td>8</td><td>Number of friendly bots on your team.</td></tr>
+    <tr><td>BotQuota</td><td>28</td><td>Minimum enemy bots (used when bBots=False).</td></tr>
+    <tr><td>MaxBotQuota</td><td>45</td><td>Maximum enemy bots.</td></tr>
+    <tr><td>SoloEnemies</td><td>45</td><td>Fixed enemy count when bBots=True. Ignores Min/Max.</td></tr>
+    <tr><td>SoloWaves</td><td>10</td><td>Enemy waves per objective.</td></tr>
+    <tr><td>DefaultReinforcementWaves</td><td>8</td><td>Player respawn waves. When exhausted and you die, game over.</td></tr>
+    <tr><td>bLoseWhenAllPlayersDead</td><td>False</td><td>False = game continues after death until respawn waves run out.</td></tr>
+    <tr><td>bForceSoloWaves</td><td>True</td><td>Required after patch 1.11 to make respawn waves work in solo play.</td></tr>
+    <tr><td>RespawnDelay</td><td>5</td><td>Seconds before respawning after death.</td></tr>
+    <tr><td>AIAimMultiplier</td><td>0.7</td><td>Enemy accuracy. 0.0 = blind, 1.0 = perfect aim.</td></tr>
+    <tr><td>InitialSupply</td><td>45</td><td>Supply points for equipment selection.</td></tr>
+    <tr><td>RoundTime</td><td>1200</td><td>Round time limit in seconds (1200 = 20 min).</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>Important:</strong> Changes via Quick Settings are written to Game.ini but only take effect after restarting the server. Use the "Stop Server" → "Start Server" buttons after saving settings.
+</div>
+
+
+<!-- 7. Tips -->
+<h2 id="tips"><span class="num">7</span> Tips &amp; Tricks</h2>
+
+<h3>Getting the most out of kill tracking</h3>
+<p>Kill tracking relies on <code>LogGameplayEvents</code> in the server log. The app adds the required launch parameter automatically. Your name is detected on first connect. If it shows "Player" instead of your name, make sure your GSLT token is correct and that you are not running with <code>-nosteam</code>.</p>
+
+<h3>Using presets for different sessions</h3>
+<p>Save a preset for each type of session you like to play — e.g. "Hardcore solo", "Bot horde", "Relaxed co-op". Load them with one click without having to re-configure everything.</p>
+
+<h3>Exporting your stats</h3>
+<p>In the Player tab → Dashboard, click "Export Stats" to save a PNG image of your career summary — rank, K/D, medals, and top maps. Useful for sharing on Discord or Reddit.</p>
+
+<h3>RCON commands</h3>
+<p>The RCON console in the Server Log panel lets you send live commands to the running server. Useful commands:</p>
+<table>
+  <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>listplayers</code></td><td>Show connected players</td></tr>
+    <tr><td><code>travel MapName?Scenario=...?Game=...</code></td><td>Change map immediately</td></tr>
+    <tr><td><code>kick PlayerName</code></td><td>Kick a player</td></tr>
+    <tr><td><code>say Hello!</code></td><td>Send a chat message to all players</td></tr>
+  </tbody>
+</table>
+
+<h3>Mutator combinations worth trying</h3>
+<ul style="padding-left:18px; font-size:13px; color:var(--text-dim); margin-top:8px;">
+  <li style="margin-bottom:6px"><strong>Frenzy + BulletSponge</strong> — zombie horde that takes many bullets to kill. Very intense.</li>
+  <li style="margin-bottom:6px"><strong>Vampirism + HardcoreCheckpoint</strong> — no HUD, stay alive by killing enemies. High skill challenge.</li>
+  <li style="margin-bottom:6px"><strong>AllYouCanEat + BoltActionsOnly</strong> — unlimited supply but bolt-actions only. Tactical sniper mode.</li>
+</ul>
+
+
+<!-- 8. FAQ -->
+<h2 id="faq" class="page-break"><span class="num">8</span> FAQ</h2>
+
+<h3>The server starts but I can't connect to it</h3>
+<p>Use the "Dedicated + Connect" button which starts the server and launches the game client with the correct connection parameters. If connecting manually, use <code>open 127.0.0.1:27102</code> in the game console.</p>
+
+<h3>My kills are not being tracked</h3>
+<p>Make sure you started the server via the app (it adds the required <code>-LogCmds</code> parameter). Also check that your player name has been detected — it appears in the header area. If it shows "Player", reconnect to the server once while it is running.</p>
+
+<h3>The app shows "Stoppet" but the server is still running</h3>
+<p>If the server was started outside the app (e.g. manually), the app won't know about it. Always use the app's Start Server button for tracked sessions.</p>
+
+<h3>Can I use this if my server is on another machine?</h3>
+<p>Not fully. The app manages the server process directly and reads log files from the local filesystem. The RCON console would work over a network, but starting/stopping and config editing require local access. It is designed for the case where server and client are on the same PC.</p>
+
+<h3>How do I add a new language?</h3>
+<p>Copy <code>lang/en.json</code> to <code>lang/xx.json</code>, translate the values, and set <code>"language": "xx"</code> in <code>config.json</code>. All UI elements will update automatically on the next app start.</p>
+
+<h3>Is it safe to expose this on the internet?</h3>
+<p>No. The app has no authentication. Only use it on localhost or a trusted local network. If you need remote access, put it behind a reverse proxy (nginx/Caddy) with HTTPS and basic authentication.</p>
+
+</div>
+
+<footer>
+  Insurgency Sandstorm Local Server Manager &nbsp;·&nbsp; MIT License &nbsp;·&nbsp;
+  <a href="https://github.com/Ans777/insurgency-sandstorm-server-manager">github.com/Ans777/insurgency-sandstorm-server-manager</a>
+</footer>
+
+<button class="btn no-print print-btn" onclick="window.print()">&#128424; Save as PDF</button>
+
+</body>
+</html>
