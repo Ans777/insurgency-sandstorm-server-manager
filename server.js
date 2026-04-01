@@ -433,6 +433,16 @@ function startServerProcess(params) {
           serverLog.push(entry);
           if (serverLog.length > MAX_LOG_LINES) serverLog.shift();
 
+          // New round → save current session and start fresh
+          if (/Display: Round \d+ started/.test(clean)) {
+            const stats = loadPlayerStats();
+            if (stats._currentSession && stats._currentSession.kills > 0) {
+              stats._currentSession = null;
+              stats.totalGames++;
+              savePlayerStats(stats);
+            }
+          }
+
           // Server-side kill/death tracking
           if (config.playerName) {
             const killMatch = clean.match(/Display:\s+(.+?)\s+killed\s+(.+?)\s+with\s+BP_(\w+?)_C/);
