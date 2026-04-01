@@ -1,4 +1,9 @@
-# Insurgency Sandstorm Server Manager
+# Insurgency Sandstorm – Local Server Manager
+
+> A web-based manager for your local Insurgency: Sandstorm dedicated server — with kill tracking, ranks, medals, AI assistant, Steam integration, and community feeds.
+
+![Server Tab](screenshots/server.png)
+
 
 A web-based local server manager for Insurgency: Sandstorm dedicated servers with built-in gamification, kill tracking, AI assistant, and Steam integration.
 
@@ -123,6 +128,28 @@ Copy `lang/en.json` to `lang/xx.json` and translate the values. Then select your
 - **Backend**: Node.js + Express + WebSocket
 - **Frontend**: Vanilla HTML/CSS/JavaScript (no framework)
 - **APIs**: Steam Web API, OpenAI Realtime API, mod.io
+
+## Screenshots
+
+| Server Control | Player Stats |
+|---|---|
+| ![Server](screenshots/server.png) | ![Player](screenshots/player.png) |
+
+| Community Feed | Setup Wizard |
+|---|---|
+| ![Community](screenshots/community.png) | ![Setup](screenshots/setup.png) |
+
+> **Want to contribute screenshots?** Take them while the app is running, add them to a `screenshots/` folder, and open a pull request.
+
+## Feedback & Contributing
+
+Found a bug? Have an idea for a new feature?
+
+- **[Open an Issue](https://github.com/Ans777/insurgency-sandstorm-server-manager/issues)** — bug reports and feature requests
+- **[Start a Discussion](https://github.com/Ans777/insurgency-sandstorm-server-manager/discussions)** — questions, ideas, show & tell
+- **Pull requests are welcome** — fork the repo, make your changes, and submit a PR
+
+If you find the project useful, a ⭐ on GitHub helps others discover it!
 
 ## License
 
