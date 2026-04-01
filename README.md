@@ -151,6 +151,12 @@ Found a bug? Have an idea for a new feature?
 
 If you find the project useful, a ⭐ on GitHub helps others discover it!
 
+## Built With
+
+This project was built entirely using **[Claude Code](https://claude.ai/code)** — Anthropic's AI coding assistant. From the first line of server code to the gamification system, Steam integration, AI assistant, and this documentation — everything was developed in collaboration with Claude over the course of three days.
+
+> A real-world example of what's possible when domain knowledge meets AI-assisted development.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE)
