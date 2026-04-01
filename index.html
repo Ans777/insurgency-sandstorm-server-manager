@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Insurgency Sandstorm - Server Manager</title>
+  <title>Insurgency Sandstorm - Local Server Manager</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -342,7 +342,7 @@
 <body>
 
 <header>
-  <h1>INSURGENCY <span>SANDSTORM</span> // Server Manager</h1>
+  <h1>INSURGENCY <span>SANDSTORM</span> // Local Server Manager</h1>
   <div class="header-right">
     <div class="stats-bar" id="stats-bar" style="display:none;">
       <div class="stat">RAM: <span class="stat-val" id="stat-ram">-</span> MB</div>
@@ -955,32 +955,6 @@ async function startAndPlay() {
       toast('Spillet starter via Steam...');
     } catch (err) { toast('Kunne ikke starte spillet: ' + err.message, 'error'); }
   }, 15000);
-}
-
-// ===== LOCAL PLAY (with friendly bots) =====
-async function launchLocalPlay() {
-  const map = document.getElementById('start-map').value;
-  const mode = document.getElementById('game-mode').value;
-  const side = document.getElementById('side').value;
-  const mutatorEls = document.querySelectorAll('#mutator-grid input:checked');
-  const mutators = Array.from(mutatorEls).map(el => el.value);
-
-  toast('Starter Local Play med friendly bots...');
-  try {
-    const r = await fetch('/api/launch-local', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        map,
-        scenario: `Scenario_${map}_${mode}_${side}`,
-        maxPlayers: parseInt(document.getElementById('max-players').value),
-        mutators
-      })
-    });
-    const d = await r.json();
-    if (d.ok) toast('Spillet starter - Local Play med bots!');
-    else toast(d.error, 'error');
-  } catch (err) { toast('Fejl: ' + err.message, 'error'); }
 }
 
 // ===== MAP PREVIEW =====
