@@ -63,7 +63,7 @@ A web-based local server manager for Insurgency: Sandstorm dedicated servers wit
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/insurgency-sandstorm-server-manager.git
+git clone https://github.com/Ans777/insurgency-sandstorm-server-manager.git
 cd insurgency-sandstorm-server-manager
 ```
 
