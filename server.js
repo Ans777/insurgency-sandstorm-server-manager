@@ -90,7 +90,7 @@ if (!config) {
     port: 27102,
     queryPort: 27131
   };
-  saveConfig(config);
+  // Do not saveConfig here — wait for user to complete setup wizard
 }
 
 let openaiKey = config.openaiKey || process.env.OPENAI_API_KEY || '';
