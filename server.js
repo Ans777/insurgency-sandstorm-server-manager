@@ -330,7 +330,7 @@ let lastStartParams = null;
 
 // Serve the frontend
 app.get('/', (req, res) => {
-  if (!config.steamDir || !config.serverDir) return res.redirect('/setup');
+  if (!fs.existsSync(CONFIG_FILE)) return res.redirect('/setup');
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
