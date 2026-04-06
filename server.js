@@ -176,6 +176,14 @@ function loadPlayerStats() {
 }
 
 function savePlayerStats(stats) {
+  // Sync _currentSession into sessions array — reference is lost after JSON parse,
+  // so we match by date and overwrite the last entry
+  if (stats._currentSession && stats.sessions.length > 0) {
+    const last = stats.sessions[stats.sessions.length - 1];
+    if (last.date === stats._currentSession.date) {
+      stats.sessions[stats.sessions.length - 1] = { ...stats._currentSession };
+    }
+  }
   fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf-8');
 }
 
