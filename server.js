@@ -538,6 +538,33 @@ app.post('/api/stop', (req, res) => {
   }
 });
 
+// Change map - stop and restart with new map
+app.post('/api/server/changemap', (req, res) => {
+  if (!serverProcess || serverProcess.exitCode !== null) {
+    return res.json({ ok: false, error: 'Server kører ikke' });
+  }
+  if (!lastStartParams) {
+    return res.json({ ok: false, error: 'Ingen start-parametre tilgængelige' });
+  }
+  const { map, mode, side } = req.body;
+  if (!map) return res.json({ ok: false, error: 'Map mangler' });
+  const newParams = {
+    ...lastStartParams,
+    map,
+    scenario: `Scenario_${map}_${mode || 'Checkpoint'}_${side || 'Security'}`
+  };
+  try {
+    execSync(`taskkill /PID ${serverProcess.pid} /T /F`, { stdio: 'ignore' });
+    serverProcess = null;
+  } catch {}
+  res.json({ ok: true });
+  setTimeout(() => {
+    if (!serverProcess) {
+      try { startServerProcess(newParams); } catch {}
+    }
+  }, 2000);
+});
+
 // Toggle auto-restart
 app.post('/api/autorestart', (req, res) => {
   autoRestart = !!req.body.enabled;

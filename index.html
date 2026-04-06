@@ -458,6 +458,17 @@
     </div>
   </div>
 
+  <!-- Match History -->
+  <div class="panel full-width" id="p-history">
+    <div class="panel-header" onclick="togglePanel(event,'p-history')">
+      <div style="display:flex;align-items:center;gap:8px"><span class="collapse-icon">&#9660;</span><h2>Match History</h2></div>
+      <span id="history-count" style="font-size:12px;color:var(--text-dim)"></span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <div id="match-history-list"></div>
+    </div>
+  </div>
+
   <!-- Challenges -->
   <div class="panel full-width" id="p-challenges">
     <div class="panel-header" onclick="togglePanel(event,'p-challenges')">
@@ -539,6 +550,32 @@
         <div class="checkbox-row" style="margin-left: 8px;">
           <input type="checkbox" id="auto-restart" onchange="toggleAutoRestart()">
           <label for="auto-restart" style="font-size:12px" data-i18n="server.autoRestart">Auto-restart</label>
+        </div>
+      </div>
+      <!-- Change Map (only visible when server is running) -->
+      <div id="changemap-row" style="display:none; margin-bottom:14px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:6px;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">⚡ Skift Map (genstarter server)</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="change-map" style="flex:2;min-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;outline:none;">
+            <option value="Farmhouse">Farmhouse</option><option value="Hideout">Hideout</option>
+            <option value="Refinery">Refinery</option><option value="Precinct">Precinct</option>
+            <option value="Outskirts">Outskirts</option><option value="Ministry">Ministry</option>
+            <option value="Hillside">Hillside</option><option value="PowerPlant">Power Plant</option>
+            <option value="Tideway">Tideway</option><option value="Summit">Summit</option>
+            <option value="Crossing">Crossing</option><option value="Tell">Tell</option>
+            <option value="Citadel">Citadel</option><option value="Bab">Bab</option><option value="Gap">Gap</option>
+          </select>
+          <select id="change-mode" style="flex:2;min-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;outline:none;">
+            <option value="Checkpoint">Checkpoint</option>
+            <option value="Hardcore_Checkpoint">Hardcore Checkpoint</option>
+            <option value="Push">Push</option><option value="Frontline">Frontline</option>
+            <option value="Skirmish">Skirmish</option><option value="Firefight">Firefight</option>
+          </select>
+          <select id="change-side" style="flex:1;min-width:100px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;outline:none;">
+            <option value="Security">Security</option>
+            <option value="Insurgents">Insurgents</option>
+          </select>
+          <button class="btn btn-save" onclick="changeMap()">Skift Map</button>
         </div>
       </div>
       <div class="form-grid">
@@ -887,12 +924,14 @@ async function pollStatus() {
       text.textContent = `${t('server.running')} (PID: ${data.pid})`;
       statsBar.style.display = 'flex';
       document.getElementById('stat-pid').textContent = data.pid;
+      document.getElementById('changemap-row').style.display = 'block';
       pollStats(data.pid);
       if (!logInterval) startLogPolling(true);
     } else {
       badge.className = 'status-badge stopped';
       text.textContent = t('server.stopped');
       statsBar.style.display = 'none';
+      document.getElementById('changemap-row').style.display = 'none';
     }
     document.getElementById('auto-restart').checked = data.autoRestart;
   } catch {}
@@ -948,6 +987,22 @@ async function stopServer() {
 async function toggleAutoRestart() {
   const enabled = document.getElementById('auto-restart').checked;
   await fetch('/api/autorestart', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ enabled }) });
+}
+
+async function changeMap() {
+  const map = document.getElementById('change-map').value;
+  const mode = document.getElementById('change-mode').value;
+  const side = document.getElementById('change-side').value;
+  try {
+    const r = await fetch('/api/server/changemap', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ map, mode, side })
+    });
+    const d = await r.json();
+    if (d.ok) { toast(`Skifter til ${map} — server genstarter...`); logOffset = 0; setTimeout(startLogPolling, 3000); }
+    else toast(d.error, 'error');
+  } catch (err) { toast('Fejl: ' + err.message, 'error'); }
+  setTimeout(pollStatus, 3000);
 }
 
 // ===== START & PLAY =====
@@ -1489,6 +1544,7 @@ async function loadDashboard() {
       renderKDperMap(stats.killsPerMap || {}, stats.deathsPerMap || {});
       renderKDperWeapon(stats.killsPerWeapon || {}, stats.deathsByWeapon || {});
       renderDailyKills(stats.dailyKills || {});
+      renderMatchHistory(stats.sessions || []);
     }
     if (daily.ok) renderDailyChallenge(daily);
   } catch {}
@@ -1634,6 +1690,54 @@ function renderDailyKills(dailyKills) {
     </div>`;
   }).join('');
   table.innerHTML = rows;
+}
+
+// ===== MATCH HISTORY =====
+function renderMatchHistory(sessions) {
+  const el = document.getElementById('match-history-list');
+  if (!el) return;
+  const countEl = document.getElementById('history-count');
+
+  const valid = sessions.filter(s => s.kills > 0 || s.deaths > 0);
+  const sorted = [...valid].reverse(); // newest first
+
+  if (countEl) countEl.textContent = `${sorted.length} kampe`;
+
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">Ingen kampe endnu</div>';
+    return;
+  }
+
+  const rows = sorted.map((s, i) => {
+    const d = new Date(s.date);
+    const dateStr = d.toLocaleDateString('da-DK', { day:'2-digit', month:'short', year:'numeric' });
+    const timeStr = d.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+    const kd = s.deaths > 0 ? (s.kills / s.deaths).toFixed(2) : s.kills > 0 ? '∞' : '0';
+    const kdColor = parseFloat(kd) >= 3 ? 'var(--green)' : parseFloat(kd) >= 1 ? 'var(--accent)' : 'var(--red)';
+
+    // Weapon breakdown
+    const weaponEntries = s._weapons ? Object.entries(s._weapons).sort((a,b) => b[1]-a[1]) : (s.topWeapon ? [[s.topWeapon, s.kills]] : []);
+    const weaponBadges = weaponEntries.map(([w, k]) =>
+      `<span style="display:inline-block;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;font-size:10px;margin:2px 2px 0 0;white-space:nowrap;">${w} <span style="color:var(--accent);font-weight:600">${k}</span></span>`
+    ).join('');
+
+    const mapColor = s.map ? 'var(--text)' : 'var(--text-dim)';
+
+    return `<div style="display:grid;grid-template-columns:130px 120px 60px 60px 60px 1fr;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;" title="${dateStr} ${timeStr}">
+      <span style="color:var(--text-dim)">${dateStr}<br><span style="font-size:10px">${timeStr}</span></span>
+      <span style="color:${mapColor};font-weight:600">${s.map || '—'}</span>
+      <span style="color:var(--accent);font-weight:700;font-size:14px">${s.kills}</span>
+      <span style="color:var(--red)">${s.deaths}</span>
+      <span style="color:${kdColor};font-weight:600">${kd}</span>
+      <span style="line-height:1.4">${weaponBadges || '<span style="color:var(--text-dim);font-size:11px">—</span>'}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:130px 120px 60px 60px 60px 1fr;gap:12px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;font-weight:600;">
+      <span>Dato</span><span>Map</span><span>Kills</span><span>Deaths</span><span>K/D</span><span>Våben</span>
+    </div>
+    <div style="max-height:500px;overflow-y:auto;">${rows}</div>`;
 }
 
 function renderKDStatBars(container, kills, deaths, limit) {
