@@ -335,6 +335,19 @@ function recordDeathServerSide(weapon, map) {
 // Auto-restart state
 let autoRestart = false;
 let lastStartParams = null;
+let lastLoadedMap = null; // faktisk loadet kort (til fallback-detektion)
+
+// Byg korrekt scenarie-navn pr. mode — modes bruger forskellige suffikser:
+//  Checkpoint/Push -> _Security/_Insurgents | Hardcore_Checkpoint -> Checkpoint + Hardcore-mutator
+//  Firefight -> _West (positionelt) | Skirmish/Domination/Frontline/FFA -> ingen faktion-side
+function buildScenarioName(map, mode, side) {
+  mode = mode || 'Checkpoint';
+  side = side || 'Security';
+  if (mode === 'Checkpoint' || mode === 'Push') return `Scenario_${map}_${mode}_${side}`;
+  if (mode === 'Hardcore_Checkpoint') return `Scenario_${map}_Checkpoint_${side}`;
+  if (mode === 'Firefight') return `Scenario_${map}_Firefight_West`;
+  return `Scenario_${map}_${mode}`;
+}
 
 // Serve the frontend
 app.get('/', (req, res) => {
@@ -379,6 +392,7 @@ function startServerProcess(params) {
 
   serverLog = [];
   lastStartParams = params;
+  lastLoadedMap = null;
 
   serverProcess = spawn(SERVER_EXE, args, { cwd: SERVER_DIR, stdio: ['pipe', 'pipe', 'pipe'] });
 
@@ -463,7 +477,8 @@ function startServerProcess(params) {
               const isYourKill = new RegExp(pNameEsc).test(killerStr);
               const youDied = new RegExp(pNameEsc).test(victimStr);
               const isEnemyVictim = /team 1/.test(victimStr);
-              const map = lastStartParams ? lastStartParams.map : '';
+              // Brug det FAKTISK loadede kort (fanger fallback), ellers det anmodede
+              const map = lastLoadedMap || (lastStartParams ? lastStartParams.map : '');
               const weapon = serverWeaponName(rawWeapon);
               if (isYourKill && isEnemyVictim) {
                 const role = victimStr.replace(/\[.*?\]/g, '').trim();
@@ -488,6 +503,29 @@ function startServerProcess(params) {
     }
     readNewLogLines();
   }, 500);
+
+  // Fallback-detektion: tjek (op til ~24s) om det anmodede kort faktisk loadede.
+  // Forankret på den SENESTE "Command Line:" i loggen = nuværende session (robust mod historik/rotation).
+  let fbTries = 0;
+  const fbTimer = setInterval(() => {
+    fbTries++;
+    if (!serverProcess || serverProcess.exitCode !== null || fbTries > 12) { clearInterval(fbTimer); return; }
+    try {
+      const txt = fs.readFileSync(logFile, 'latin1');
+      const clIdx = txt.lastIndexOf('LogInit: Command Line:');
+      if (clIdx === -1) return;
+      const lm = txt.slice(clIdx).match(/OnBeginLoadMap\(\/Game\/Maps\/([A-Za-z0-9]+)\//);
+      if (!lm) return; // kortet er ikke loadet endnu — vent
+      clearInterval(fbTimer);
+      lastLoadedMap = lm[1];
+      const requested = lastStartParams ? lastStartParams.map : null;
+      if (requested && lastLoadedMap !== requested) {
+        const ts = new Date().toLocaleTimeString('da-DK');
+        serverLog.push(`[${ts}] ⚠️ ADVARSEL: "${requested}" med den valgte mode findes ikke i denne build — serveren faldt tilbage til "${lastLoadedMap}". Vælg en anden kort/mode-kombination.`);
+        if (serverLog.length > MAX_LOG_LINES) serverLog.shift();
+      }
+    } catch {}
+  }, 2000);
 
   serverProcess.on('close', (code) => {
     const ts = new Date().toLocaleTimeString('da-DK');
@@ -556,10 +594,14 @@ app.post('/api/server/changemap', (req, res) => {
   }
   const { map, mode, side } = req.body;
   if (!map) return res.json({ ok: false, error: 'Map mangler' });
+  // Hardcore Checkpoint = Checkpoint-scenarie + Hardcore-mutator
+  const mutators = (Array.isArray(lastStartParams.mutators) ? lastStartParams.mutators : []).filter(m => m !== 'Hardcore');
+  if (mode === 'Hardcore_Checkpoint') mutators.push('Hardcore');
   const newParams = {
     ...lastStartParams,
     map,
-    scenario: `Scenario_${map}_${mode || 'Checkpoint'}_${side || 'Security'}`
+    scenario: buildScenarioName(map, mode, side),
+    mutators
   };
   try {
     execSync(`taskkill /PID ${serverProcess.pid} /T /F`, { stdio: 'ignore' });
@@ -1054,7 +1096,7 @@ app.post('/api/challenges/progress', (req, res) => {
 
 // ===== DAILY CHALLENGE =====
 const DAILY_CHALLENGES = [
-  { name: 'Pistolero', desc: 'F\u00e5 10 kills med pistol', targetKey: 'weaponKills', weaponMatch: /PF940|Makarov|M45|M9|L106|MR73|Welrod/, target: 10 },
+  { name: 'Pistolero', desc: 'F\u00e5 10 kills med pistol', targetKey: 'weaponKills', weaponMatch: /PF940|Makarov|M45|M9|L105|MR73|Welrod|M1911|BrowningHP|Tariq|Vanta|TK33/, target: 10 },
   { name: 'Sniper Elite', desc: 'F\u00e5 5 kills med sniper', targetKey: 'weaponKills', weaponMatch: /Mosin|SVD|M24|M110/, target: 5 },
   { name: 'Eksplosiv Dag', desc: 'F\u00e5 8 kills med eksplosiver', targetKey: 'weaponKills', weaponMatch: /Projectile|RPG|AT4|M3MAAWS/, target: 8 },
   { name: 'Haglbyge', desc: 'F\u00e5 10 kills med shotgun', targetKey: 'weaponKills', weaponMatch: /M870|KSG|TOZ|Saiga/, target: 10 },

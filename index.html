@@ -338,6 +338,20 @@
     .ai-key-form p { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
     .ai-key-form input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 13px; font-family: monospace; outline: none; }
   </style>
+<!-- ===== Hardening Layer (Sanitätsdienst + Pionierbataillon) ===== -->
+<script>
+(function(){var APP='insurgency';var PROXY='http://localhost:8891';var IS_SELFTEST=new URLSearchParams(location.search).has('selftest');
+function post(p,d){try{var b=JSON.stringify(Object.assign({app:APP,ts:new Date().toISOString()},d));if(p==='/telemetry/usage'&&navigator.sendBeacon){navigator.sendBeacon(PROXY+p,new Blob([b],{type:'application/json'}));return;}fetch(PROXY+p,{method:'POST',headers:{'Content-Type':'application/json'},body:b,keepalive:true}).catch(function(){});}catch(e){}}
+if(!IS_SELFTEST){window.addEventListener('error',function(e){post('/telemetry/error',{msg:e.message||'unknown',stack:(e.error&&e.error.stack)||'',url:location.href,source:e.filename||'',line:e.lineno||0,col:e.colno||0,user_agent:navigator.userAgent});});window.addEventListener('unhandledrejection',function(e){var r=e.reason||{};post('/telemetry/error',{msg:'unhandled_promise: '+(r.message||String(r)),stack:r.stack||'',url:location.href,user_agent:navigator.userAgent});});post('/telemetry/usage',{event:'app_opened'});window.addEventListener('beforeunload',function(){post('/telemetry/usage',{event:'session_end'});});window.Telemetry={app:APP,track:function(e,p){post('/telemetry/usage',{event:e,props:p||null});}};return;}
+var consoleErrors=[];var oe=console.error;var IGN=[/^\[BABEL\]/i,/deoptimised the styling/i,/in-browser Babel transformer/i];console.error=function(){try{var p=[];for(var i=0;i<arguments.length;i++)p.push(String(arguments[i]));var j=p.join(' ');var ig=false;for(var k=0;k<IGN.length;k++){if(IGN[k].test(j)){ig=true;break;}}if(!ig)consoleErrors.push(j);}catch(e){}return oe.apply(console,arguments);};
+function run(){var checks=[];function t(n,f){var s=performance.now();try{f();checks.push({name:n,result:'PASS',duration_ms:Math.round(performance.now()-s)});}catch(e){checks.push({name:n,result:'FAIL',error:e.message||String(e),duration_ms:Math.round(performance.now()-s)});}}
+setTimeout(function(){t('localStorage_read',function(){localStorage.getItem('__probe');});t('localStorage_write',function(){localStorage.setItem('__probe','1');if(localStorage.getItem('__probe')!=='1')throw new Error('write fail');localStorage.removeItem('__probe');});t('core_render',function(){if(!document.body||document.body.children.length===0)throw new Error('body empty');});
+checks.push({name:'no_console_errors',result:consoleErrors.length===0?'PASS':'FAIL',error:consoleErrors.length>0?consoleErrors.slice(0,3).join(' | '):undefined,duration_ms:0});
+var f=checks.filter(function(c){return c.result==='FAIL';}).length;var rep={app:APP,ts:new Date().toISOString(),version:window.__APP_VERSION__||'unknown',checks:checks,overall:f===0?'PASS':'FAIL',summary:(checks.length-f)+'/'+checks.length+' PASS'+(f>0?', '+f+' FAIL':'')};
+var pre=document.createElement('pre');pre.id='selftest-result';pre.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#0a0a0f;color:'+(f===0?'#5aaa5a':'#cc5544')+';font-family:Consolas,monospace;font-size:14px;padding:24px;margin:0;overflow:auto;white-space:pre-wrap;';pre.textContent=JSON.stringify(rep,null,2);document.body.appendChild(pre);
+if(window.parent&&window.parent!==window){try{window.parent.postMessage({type:'selftest_result',report:rep},'*');}catch(e){}}post('/telemetry/sentinel',rep);},1500);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();})();
+</script>
 </head>
 <body>
 
@@ -564,8 +578,11 @@
             <option value="Tideway">Tideway</option><option value="Summit">Summit</option>
             <option value="Crossing">Crossing</option><option value="Tell">Tell</option>
             <option value="Citadel">Citadel</option><option value="Bab">Bab</option><option value="Gap">Gap</option>
+            <option value="Hold">Hold (nyt)</option><option value="Forest">Forest</option>
+            <option value="LastLight">Last Light</option><option value="Prison">Prison</option>
+            <option value="Trainyard">Trainyard</option>
           </select>
-          <select id="change-mode" style="flex:2;min-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;outline:none;">
+          <select id="change-mode" onchange="onModeChange('change')" style="flex:2;min-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-size:13px;outline:none;">
             <option value="Checkpoint">Checkpoint</option>
             <option value="Hardcore_Checkpoint">Hardcore Checkpoint</option>
             <option value="Push">Push</option><option value="Frontline">Frontline</option>
@@ -590,11 +607,14 @@
             <option value="Crossing">Crossing</option><option value="Tell">Tell</option>
             <option value="Citadel">Citadel</option><option value="Bab">Bab</option>
             <option value="Gap">Gap</option>
+            <option value="Hold">Hold (nyt)</option><option value="Forest">Forest</option>
+            <option value="LastLight">Last Light</option><option value="Prison">Prison</option>
+            <option value="Trainyard">Trainyard</option>
           </select>
         </div>
         <div class="form-group">
           <label data-i18n="server.gameMode">Game Mode</label>
-          <select id="game-mode">
+          <select id="game-mode" onchange="onModeChange('start')">
             <option value="Checkpoint">Checkpoint</option><option value="Hardcore_Checkpoint">Hardcore Checkpoint</option>
             <option value="Push">Push</option><option value="Frontline">Frontline</option>
             <option value="Skirmish">Skirmish</option><option value="Firefight">Firefight</option>
@@ -952,9 +972,11 @@ function getStartParams() {
   const side = document.getElementById('side').value;
   const mutatorEls = document.querySelectorAll('#mutator-grid input:checked');
   const activeMutators = Array.from(mutatorEls).map(el => el.value);
+  // Hardcore Checkpoint = Checkpoint-scenarie + Hardcore-mutator
+  if (mode === 'Hardcore_Checkpoint' && !activeMutators.includes('Hardcore')) activeMutators.push('Hardcore');
   const activeMods = mods.filter(m => m.enabled).map(m => m.id);
   return {
-    map, scenario: `Scenario_${map}_${mode}_${side}`,
+    map, scenario: buildScenario(map, mode, side),
     maxPlayers: parseInt(document.getElementById('max-players').value),
     port: parseInt(document.getElementById('port').value),
     noSteam: document.getElementById('no-steam').checked,
@@ -966,6 +988,11 @@ function getStartParams() {
 }
 
 async function startServer() {
+  const sMode = document.getElementById('game-mode').value;
+  const sMap = document.getElementById('start-map').value;
+  if (isCheckpointMode(sMode) && !CHECKPOINT_MAPS.has(sMap)) {
+    return toast(`${sMap} understøtter ikke Checkpoint — vælg et Checkpoint-kort`, 'error');
+  }
   try {
     const r = await fetch('/api/start', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(getStartParams()) });
     const data = await r.json();
@@ -993,6 +1020,9 @@ async function changeMap() {
   const map = document.getElementById('change-map').value;
   const mode = document.getElementById('change-mode').value;
   const side = document.getElementById('change-side').value;
+  if (isCheckpointMode(mode) && !CHECKPOINT_MAPS.has(map)) {
+    return toast(`${map} understøtter ikke Checkpoint — vælg et Checkpoint-kort`, 'error');
+  }
   try {
     const r = await fetch('/api/server/changemap', {
       method: 'POST', headers: {'Content-Type':'application/json'},
@@ -1020,6 +1050,35 @@ async function startAndPlay() {
 }
 
 // ===== MAP PREVIEW =====
+// ===== CHECKPOINT MAP SUPPORT =====
+// Kun disse kort har et fungerende Checkpoint (coop) scenarie i denne build —
+// verificeret empirisk. Andre kort falder lydløst tilbage til Farmhouse i Checkpoint.
+const CHECKPOINT_MAPS = new Set(['Farmhouse','Precinct','Ministry','PowerPlant','Tell','Citadel','Bab','Gap','Hold','Forest','LastLight','Prison','Trainyard']);
+function isCheckpointMode(mode) { return mode === 'Checkpoint' || mode === 'Hardcore_Checkpoint'; }
+// Byg korrekt scenarie-navn pr. mode (modes bruger forskellige suffikser)
+function buildScenario(map, mode, side) {
+  if (mode === 'Checkpoint' || mode === 'Push') return `Scenario_${map}_${mode}_${side}`;
+  if (mode === 'Hardcore_Checkpoint') return `Scenario_${map}_Checkpoint_${side}`;
+  if (mode === 'Firefight') return `Scenario_${map}_Firefight_West`;
+  return `Scenario_${map}_${mode}`; // Skirmish, Domination, Frontline, FFA (ingen faktion-side)
+}
+function applyCheckpointFilter(mapSelId, mode) {
+  const sel = document.getElementById(mapSelId);
+  if (!sel) return false;
+  const cp = isCheckpointMode(mode);
+  Array.from(sel.options).forEach(o => { o.disabled = cp && !CHECKPOINT_MAPS.has(o.value); });
+  const cur = sel.options[sel.selectedIndex];
+  if (cp && cur && cur.disabled) { sel.value = 'Farmhouse'; return true; }
+  return false;
+}
+function onModeChange(which) {
+  const changed = (which === 'start')
+    ? applyCheckpointFilter('start-map', document.getElementById('game-mode').value)
+    : applyCheckpointFilter('change-map', document.getElementById('change-mode').value);
+  if (changed) toast('Kortet understøtter ikke Checkpoint — skiftede til Farmhouse', 'error');
+  if (which === 'start') updateMapPreview();
+}
+
 function updateMapPreview() {
   const map = document.getElementById('start-map').value;
   const container = document.getElementById('map-preview');
@@ -2399,6 +2458,8 @@ restoreTab();
 restorePanelStates();
 initMutators();
 updateMapPreview();
+onModeChange('start');
+onModeChange('change');
 pollStatus();
 loadGameIni();
 loadMapCycle();
