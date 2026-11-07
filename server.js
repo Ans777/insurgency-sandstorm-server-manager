@@ -410,19 +410,45 @@ function startServerProcess(params) {
 
   // Tail the log file for LogGameplayEvents (not sent to stdout)
   const logFile = path.join(LOG_DIR, 'Insurgency.log');
-  // Start from beginning of file to catch ALL events from this session
-  let logFileSize = 0;
+  // At spawn the file still holds the PREVIOUS session: the game rotates Insurgency.log
+  // IN PLACE (same file ID: copied to a backup, then rewritten) about 1.5-3s AFTER spawn.
+  // Reading it before then re-imports old kills and the old map load, so snapshot it here
+  // and only treat content written after the rotation (or appended after spawn) as ours.
+  const readLogHeader = () => {
+    try {
+      const fd = fs.openSync(logFile, 'r');
+      const b = Buffer.alloc(128);
+      const n = fs.readSync(fd, b, 0, 128, 0);
+      fs.closeSync(fd);
+      return b.toString('latin1', 0, n);
+    } catch { return null; }
+  };
+  const spawnHeader = readLogHeader(); // contains "Log file open, <timestamp>" of the previous session
+  let spawnSize = 0, spawnIno = null;
+  try { const st = fs.statSync(logFile); spawnSize = st.size; spawnIno = st.ino; } catch {}
+  let logRotated = spawnHeader === null; // no previous log -> everything belongs to this session
+  // Byte offset where THIS session's content starts: 0 once rotated, spawnSize until then
+  const sessionLogStart = () => {
+    if (!logRotated) {
+      try {
+        const st = fs.statSync(logFile);
+        if (st.ino !== spawnIno || st.size < spawnSize || readLogHeader() !== spawnHeader) logRotated = true;
+      } catch {}
+    }
+    return logRotated ? 0 : spawnSize;
+  };
+  let logFileSize = sessionLogStart();
+  let tailSynced = logFileSize === 0;
   // Track already-seen lines to avoid duplicates after restart
   const seenLogLines = new Set();
 
   const readNewLogLines = () => {
     try {
+      // Rotation just happened: read the new session from the top
+      if (!tailSynced && sessionLogStart() === 0) { tailSynced = true; logFileSize = 0; }
       const stat = fs.statSync(logFile);
-      if (stat.size <= logFileSize) {
-        // File was truncated/rotated - reset
-        if (stat.size < logFileSize) logFileSize = 0;
-        return;
-      }
+      if (stat.size < logFileSize) logFileSize = 0; // truncated later on
+      if (stat.size <= logFileSize) return;
       const fd = fs.openSync(logFile, 'r');
       const readSize = Math.min(stat.size - logFileSize, 1024 * 1024); // Max 1MB per read
       const buf = Buffer.alloc(readSize);
@@ -493,7 +519,7 @@ function startServerProcess(params) {
     } catch {}
   };
 
-  // Read immediately to catch events already in the file
+  // Read immediately (only content belonging to this session — see sessionLogStart)
   readNewLogLines();
 
   const logWatcher = setInterval(() => {
@@ -505,14 +531,22 @@ function startServerProcess(params) {
   }, 500);
 
   // Fallback-detektion: tjek (op til ~24s) om det anmodede kort faktisk loadede.
-  // Forankret på den SENESTE "Command Line:" i loggen = nuværende session (robust mod historik/rotation).
+  // Læser KUN denne sessions del af loggen (efter rotation / efter spawn) — aldrig den forrige sessions indhold.
   let fbTries = 0;
   const fbTimer = setInterval(() => {
     fbTries++;
     if (!serverProcess || serverProcess.exitCode !== null || fbTries > 12) { clearInterval(fbTimer); return; }
     try {
-      const txt = fs.readFileSync(logFile, 'latin1');
-      const clIdx = txt.lastIndexOf('LogInit: Command Line:');
+      const from = sessionLogStart();
+      const st = fs.statSync(logFile);
+      if (st.size <= from) return; // intet fra denne session endnu — vent
+      const len = Math.min(st.size - from, 8 * 1024 * 1024);
+      const fd = fs.openSync(logFile, 'r');
+      const buf = Buffer.alloc(len);
+      fs.readSync(fd, buf, 0, len, from);
+      fs.closeSync(fd);
+      const txt = buf.toString('latin1');
+      const clIdx = txt.indexOf('LogInit: Command Line:');
       if (clIdx === -1) return;
       const lm = txt.slice(clIdx).match(/OnBeginLoadMap\(\/Game\/Maps\/([A-Za-z0-9]+)\//);
       if (!lm) return; // kortet er ikke loadet endnu — vent
